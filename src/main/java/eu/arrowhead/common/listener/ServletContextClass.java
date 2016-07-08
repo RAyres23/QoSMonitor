@@ -9,6 +9,9 @@ import eu.arrowhead.qos.monitor.event.ProducerRegistry;
 import eu.arrowhead.qos.monitor.register.ServiceRegister;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -17,6 +20,7 @@ public class ServletContextClass implements ServletContextListener {
 
     private static final Logger LOG = Logger.getLogger(ServletContextClass.class.getName());
     private static final String MONITOR_REGISTRY_PACKAGE = "eu.arrowhead.qos.monitor.type.";
+    private static List<String> registered = new ArrayList();
 
     @Override
     public void contextInitialized(ServletContextEvent arg0) {
@@ -26,10 +30,24 @@ public class ServletContextClass implements ServletContextListener {
                 + System.getProperty("user.dir"));
 
         //Register QoSMonitor service in service registry
-        String[] registries = getServiceRegistry();
+        List<String> registries = getServiceRegistry();
 
         for (String registry : registries) {
-            ServiceRegister register = getMonitorClass(registry);
+            try {
+                ServiceRegister register = getMonitorClass(registry);
+                register.registerQoSMonitorService();
+                registered.add(registry);
+            } catch (ClassNotFoundException ex) {
+                String excMessage = "Not registered in registry " + registry + ". "
+                        + "Registry class " + registry + " not found. Make "
+                        + "sure you have the right registry class for your "
+                        + "situation and that it's available in this version "
+                        + "and/or not misspelled.";
+                LOG.log(Level.SEVERE, excMessage);
+//                throw new RuntimeException(excMessage);
+            } catch (InstantiationException | IllegalAccessException ex) {
+                Logger.getLogger(ServletContextClass.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
 
         // [PT] Starting MongoDB, loading EventProducer configurations and registering in EventHandler
@@ -50,6 +68,22 @@ public class ServletContextClass implements ServletContextListener {
         MongoDatabaseManager.stopManager();
 
         //TODO unregister from EventHandler
+        
+        for (String registry : registered) {
+            try {
+                ServiceRegister register = getMonitorClass(registry);
+                register.unregisterQoSMonitorService();
+            } catch (ClassNotFoundException ex) {
+                String excMessage = "Registry class " + registry + " not found. Make "
+                        + "sure you have the right registry class for your "
+                        + "situation and that it's available in this version "
+                        + "and/or not misspelled.";
+                LOG.log(Level.SEVERE, excMessage);
+                throw new RuntimeException(excMessage);
+            } catch (InstantiationException | IllegalAccessException ex) {
+                Logger.getLogger(ServletContextClass.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 
     /**
@@ -57,7 +91,7 @@ public class ServletContextClass implements ServletContextListener {
      *
      * @return list of ServiceRegistry
      */
-    private String[] getServiceRegistry() {
+    private List<String> getServiceRegistry() {
         Properties props = null;
         String[] registries;
         try {
@@ -81,7 +115,7 @@ public class ServletContextClass implements ServletContextListener {
             LOG.log(Level.SEVERE, exMsg);
             throw new RuntimeException(exMsg);
         }
-        return registries;
+        return Arrays.asList(registries);
     }
 
     /**

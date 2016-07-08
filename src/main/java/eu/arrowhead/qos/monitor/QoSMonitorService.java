@@ -1,5 +1,6 @@
 package eu.arrowhead.qos.monitor;
 
+import eu.arrowhead.common.exception.InvalidMonitorTypeException;
 import eu.arrowhead.common.exception.MonitorRuleNotFoundException;
 import eu.arrowhead.common.exception.NoMonitorParametersException;
 import eu.arrowhead.common.model.messages.QoSMonitorAddRule;
@@ -10,10 +11,6 @@ import eu.arrowhead.qos.monitor.database.MonitorLog;
 import eu.arrowhead.qos.monitor.database.MonitorRule;
 import eu.arrowhead.qos.monitor.event.SLAVerification;
 import eu.arrowhead.qos.monitor.type.Monitor;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
@@ -27,7 +24,6 @@ import java.util.logging.Logger;
  */
 public class QoSMonitorService {
 
-    private static Properties props;
     private static final String MONITOR_TYPE_PACKAGE = "eu.arrowhead.core.qos.monitor.type.";
     private static final ExecutorService EXEC = Executors.newCachedThreadPool();
     private static final Logger LOG = Logger.getLogger(QoSMonitorService.class.getName());
@@ -37,31 +33,6 @@ public class QoSMonitorService {
      * instance.
      */
     public QoSMonitorService() {
-    }
-
-    /**
-     * Gets the properties file named 'monitor.properties'.
-     *
-     * @return the Properties from properties file 'monitor.properties'
-     */
-    public synchronized Properties getProps() {
-        try {
-            if (props == null) {
-                props = new Properties();
-                InputStream inputStream = getClass().getClassLoader().getResourceAsStream("monitor.properties");
-                if (inputStream != null) {
-                    props.load(inputStream);
-                    inputStream.close();
-                } else {
-                    throw new FileNotFoundException("Properties file 'eventhandler.properties' not found in the classpath");
-                }
-            }
-        } catch (FileNotFoundException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage());
-        } catch (IOException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage());
-        }
-        return props;
     }
 
 //    /**
@@ -80,20 +51,27 @@ public class QoSMonitorService {
      *
      * @param message message with the information needed for the rule to be
      * added
-     * @throws ClassNotFoundException thrown when trying to initialize a class
-     * that cannot be found. This may be due to the type in the message being
-     * wrong or mistyped
      * @throws InstantiationException
      * @throws IllegalAccessException
      */
     public void addMonitorRule(QoSMonitorAddRule message)
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+            throws InstantiationException, IllegalAccessException {
 
         if (message.getParameters().isEmpty()) {
             throw new NoMonitorParametersException("No monitor parameters found!");
         }
 
-        Monitor monitor = getMonitorClass(message.getType());
+        Monitor monitor = null;
+        try {
+            monitor = getMonitorClass(message.getType());
+        } catch (ClassNotFoundException ex) {
+            String excMessage = "Type " + message.getType() + " not found. Make "
+                    + "sure you have the right monitor type for your "
+                    + "situation and that it's available in this version "
+                    + "and/or not misspelled.";
+            LOG.log(Level.SEVERE, excMessage);
+            throw new InvalidMonitorTypeException(excMessage);
+        }
 
         MonitorRule rule = monitor.filterRuleMessage(message);
 
@@ -115,13 +93,10 @@ public class QoSMonitorService {
      *
      * @param message message with the information needed for the log to be
      * added
-     * @throws ClassNotFoundException thrown when trying to initialize a class
-     * that cannot be found. This may be due to the type in the message being
-     * wrong or mistyped
      * @throws InstantiationException
      * @throws IllegalAccessException
      */
-    public void addMonitorLog(QoSMonitorLog message) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+    public void addMonitorLog(QoSMonitorLog message) throws InstantiationException, IllegalAccessException {
 
         if (message.getParameters().isEmpty()) {
             throw new NoMonitorParametersException("No monitor parameters found!");
@@ -133,12 +108,22 @@ public class QoSMonitorService {
             throw new MonitorRuleNotFoundException("No rule created for the given services");
         }
 
-        Monitor monitor = getMonitorClass(message.getType());
+        Monitor monitor = null;
+        try {
+            monitor = getMonitorClass(message.getType());
+        } catch (ClassNotFoundException ex) {
+            String excMessage = "Type " + message.getType() + " not found. Make "
+                    + "sure you have the right monitor type for your "
+                    + "situation and that it's available in this version "
+                    + "and/or not misspelled.";
+            LOG.log(Level.SEVERE, excMessage);
+            throw new InvalidMonitorTypeException(excMessage);
+        }
 
         if (!(message.getType().equals(message.getType()))) {
             String excMessage = "Monitor type different from the existing rule for the given services."
                     + "\nYour type: " + message.getType() + "Existing rule type: " + rule.getType();
-            LOG.log(Level.WARNING, excMessage);
+            LOG.log(Level.SEVERE, excMessage);
             throw new MonitorRuleNotFoundException(excMessage);
         }
 

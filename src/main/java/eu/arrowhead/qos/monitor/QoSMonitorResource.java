@@ -61,15 +61,6 @@ public class QoSMonitorResource {
 
         try {
             monitor.addMonitorRule(message);
-        } catch (ClassNotFoundException ex) {
-            String excMessage = "Type " + message.getType() + " not found. Make "
-                    + "sure you have the right monitor type for your "
-                    + "situation and that it's available in this version "
-                    + "and/or not misspelled.";
-            LOG.log(Level.WARNING, excMessage);
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(excMessage)
-                    .build();
         } catch (InstantiationException | IllegalAccessException ex) {
             LOG.log(Level.SEVERE, ex.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -112,15 +103,6 @@ public class QoSMonitorResource {
     public Response addMonitorLog(QoSMonitorLog message) {
         try {
             monitor.addMonitorLog(message);
-        } catch (ClassNotFoundException ex) {
-            String excMessage = "Type " + message.getType() + " not found. Make "
-                    + "sure you have the right monitor type for your "
-                    + "situation and that it's available in this version "
-                    + "and/or not misspelled.";
-            LOG.log(Level.WARNING, excMessage);
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(excMessage)
-                    .build();
         } catch (InstantiationException | IllegalAccessException ex) {
             // FIXME
             LOG.log(Level.WARNING, ex.getMessage());

@@ -13,4 +13,6 @@ public interface ServiceRegister {
 
     public void registerQoSMonitorService();
 
+    public void unregisterQoSMonitorService();
+
 }

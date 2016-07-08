@@ -14,11 +14,10 @@ import javax.ws.rs.ext.Provider;
  * @author Renato Ayres
  */
 @Provider
-public class NoMonitorParametersExceptionMapper implements ExceptionMapper<NoMonitorParametersException> {
+public class InvalidMonitorTypeExceptionMapper implements ExceptionMapper<InvalidMonitorTypeException> {
 
     @Override
-    public Response toResponse(NoMonitorParametersException ex) {
-        // FIXME Fix documentation
+    public Response toResponse(InvalidMonitorTypeException ex) {
         ErrorMessage errorMessage = new ErrorMessage(ex.getMessage(), 400, "No documentation yet.");
         return Response.status(Response.Status.BAD_REQUEST).entity(errorMessage).build();
     }
