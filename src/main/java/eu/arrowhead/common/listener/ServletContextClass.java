@@ -19,24 +19,29 @@ import java.util.logging.Logger;
 public class ServletContextClass implements ServletContextListener {
 
     private static final Logger LOG = Logger.getLogger(ServletContextClass.class.getName());
-    private static final String MONITOR_REGISTRY_PACKAGE = "eu.arrowhead.qos.monitor.type.";
-    private static List<String> registered = new ArrayList();
+    private static final String MONITOR_REGISTRY_PACKAGE = "eu.arrowhead.qos.monitor.register.";
+    private static final List<String> registered = new ArrayList();
 
     @Override
     public void contextInitialized(ServletContextEvent arg0) {
-        System.out.println("[Arrowhead Core] Servlet deployed.");
+        LOG.log(Level.INFO, "[Arrowhead Core] Servlet deployed.");
 
-        System.out.println("Working Directory = "
-                + System.getProperty("user.dir"));
+        LOG.log(Level.INFO, "Working Directory = {0}", System.getProperty("user.dir"));
 
         //Register QoSMonitor service in service registry
         List<String> registries = getServiceRegistry();
 
         for (String registry : registries) {
             try {
-                ServiceRegister register = getMonitorClass(registry);
-                register.registerQoSMonitorService();
-                registered.add(registry);
+                LOG.log(Level.INFO, "Getting " + MONITOR_REGISTRY_PACKAGE + "{0} class.", registry);
+                ServiceRegister register = getRegistryClass(registry);
+                LOG.log(Level.INFO, "Registering in {0} ServiceRegistry", register.getClass().getName());
+                if (register.registerQoSMonitorService()) {
+                    registered.add(registry);
+                    LOG.log(Level.INFO, "Registry in {0} successful!", register.getClass().getName());
+                } else {
+                    LOG.log(Level.WARNING, "Registry in {0} unsuccessful!", register.getClass().getName());
+                }
             } catch (ClassNotFoundException ex) {
                 String excMessage = "Not registered in registry " + registry + ". "
                         + "Registry class " + registry + " not found. Make "
@@ -46,7 +51,7 @@ public class ServletContextClass implements ServletContextListener {
                 LOG.log(Level.SEVERE, excMessage);
 //                throw new RuntimeException(excMessage);
             } catch (InstantiationException | IllegalAccessException ex) {
-                Logger.getLogger(ServletContextClass.class.getName()).log(Level.SEVERE, null, ex);
+                LOG.log(Level.SEVERE, ex.getMessage());
             }
         }
 
@@ -68,10 +73,9 @@ public class ServletContextClass implements ServletContextListener {
         MongoDatabaseManager.stopManager();
 
         //TODO unregister from EventHandler
-        
         for (String registry : registered) {
             try {
-                ServiceRegister register = getMonitorClass(registry);
+                ServiceRegister register = getRegistryClass(registry);
                 register.unregisterQoSMonitorService();
             } catch (ClassNotFoundException ex) {
                 String excMessage = "Registry class " + registry + " not found. Make "
@@ -81,7 +85,7 @@ public class ServletContextClass implements ServletContextListener {
                 LOG.log(Level.SEVERE, excMessage);
                 throw new RuntimeException(excMessage);
             } catch (InstantiationException | IllegalAccessException ex) {
-                Logger.getLogger(ServletContextClass.class.getName()).log(Level.SEVERE, null, ex);
+                LOG.log(Level.SEVERE, ex.getMessage());
             }
         }
     }
@@ -109,7 +113,7 @@ public class ServletContextClass implements ServletContextListener {
             LOG.log(Level.SEVERE, ex.getMessage());
             throw new RuntimeException(ex.getMessage());
         }
-        registries = (String[]) props.get("registry.option");
+        registries = props.getProperty("registry.option").split(",");
         if (registries.length == 0) {
             String exMsg = "No ServiceRegistry values found in registry.option of serviceregistry.properties file.";
             LOG.log(Level.SEVERE, exMsg);
@@ -129,7 +133,7 @@ public class ServletContextClass implements ServletContextListener {
      * @throws InstantiationException
      * @throws IllegalAccessException
      */
-    public ServiceRegister getMonitorClass(String name)
+    public ServiceRegister getRegistryClass(String name)
             throws ClassNotFoundException, InstantiationException, IllegalAccessException {
         Class<?> cl;
 

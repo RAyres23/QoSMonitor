@@ -11,8 +11,8 @@ package eu.arrowhead.qos.monitor.register;
  */
 public interface ServiceRegister {
 
-    public void registerQoSMonitorService();
+    public boolean registerQoSMonitorService();
 
-    public void unregisterQoSMonitorService();
+    public boolean unregisterQoSMonitorService();
 
 }
