@@ -42,7 +42,7 @@ public class MongoDatabaseManager {
     private static MongoCollection<MonitorRule> rules;
     private static CodecRegistry logCodecRegistry;
     private static CodecRegistry ruleCodecRegistry;
-    private static Properties props;
+    private Properties props;
     private static final Logger LOG = Logger.getLogger(MongoDatabaseManager.class.getName());
 
     /**
@@ -98,7 +98,6 @@ public class MongoDatabaseManager {
             ruleCodecRegistry = null;
             client.close();
             client = null;
-            props = null;
             instance = null;
         }
     }
