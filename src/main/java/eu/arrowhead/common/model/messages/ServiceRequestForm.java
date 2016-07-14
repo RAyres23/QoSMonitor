@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import eu.arrowhead.common.model.ArrowheadService;
 import eu.arrowhead.common.model.ArrowheadSystem;
-import eu.arrowhead.qos.factories.Value;
+import eu.arrowhead.core.qos.factories.Value;
 
 @XmlRootElement
 public class ServiceRequestForm {

@@ -3,10 +3,10 @@ package eu.arrowhead.common.listener;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import eu.arrowhead.qos.monitor.database.MongoDatabaseManager;
-import eu.arrowhead.qos.monitor.event.EventProducerConfig;
-import eu.arrowhead.qos.monitor.event.ProducerRegistry;
-import eu.arrowhead.qos.monitor.register.ServiceRegister;
+import eu.arrowhead.core.qos.monitor.database.MongoDatabaseManager;
+import eu.arrowhead.core.qos.monitor.event.EventProducerConfig;
+import eu.arrowhead.core.qos.monitor.event.ProducerRegistry;
+import eu.arrowhead.core.qos.monitor.register.ServiceRegister;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
