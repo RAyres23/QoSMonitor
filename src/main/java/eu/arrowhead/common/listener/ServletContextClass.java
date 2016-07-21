@@ -19,7 +19,7 @@ import java.util.logging.Logger;
 public class ServletContextClass implements ServletContextListener {
 
     private static final Logger LOG = Logger.getLogger(ServletContextClass.class.getName());
-    private static final String MONITOR_REGISTRY_PACKAGE = "eu.arrowhead.qos.monitor.register.";
+    private static final String MONITOR_REGISTRY_PACKAGE = "eu.arrowhead.core.qos.monitor.register.";
     private static final List<String> registered = new ArrayList();
 
     @Override
