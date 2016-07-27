@@ -75,20 +75,16 @@ public class FTTSE implements Monitor {
 
         for (Key key : keys) {
             String name = key.name;
-            if (!(params.containsKey(name))) {
-                String exMsg = "Parameter missing: " + name;
-                LOG.log(Level.SEVERE, exMsg);
-                throw new MissingParameterException(exMsg);
-            }
-            try {
-                parameters.put(name, Double.valueOf(params.get(name)));
-            } catch (NumberFormatException ex) {
-                throw new InvalidParameterException("Value of parameter "
-                        + name + " is not parsable. Please make sure "
-                        + "that no invalid characters are present");
+            if (params.containsKey(name)) {
+                try {
+                    parameters.put(name, Double.valueOf(params.get(name)));
+                } catch (NumberFormatException ex) {
+                    throw new InvalidParameterException("Value of parameter "
+                            + name + " is not parsable. Please make sure "
+                            + "that no invalid characters are present");
+                }
             }
         }
-
         return parameters;
     }
 
