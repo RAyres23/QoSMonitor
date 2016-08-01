@@ -30,17 +30,34 @@ public class QoSMonitorResource {
     private static final Logger LOG = Logger.getLogger(QoSMonitorResource.class.getName());
 
     /**
-     * Method handling HTTP GET requests. The returned object will be sent to
-     * the client as "text/plain" media type.
+     * Method handling HTTP GET requests in /online path. The returned object
+     * will be sent to the client as "text/plain" media type.
      *
      * Used for testing purposes only.
      *
      * @return String that will be returned as a text/plain response.
      */
     @GET
+    @Path("/online")
     @Produces(MediaType.TEXT_PLAIN)
     public String getIt() {
-        return "This is the QoSMonitor service.";
+        return "Online.";
+    }
+
+    /**
+     * Method handling HTTP GET requests in /online path. The returned object
+     * will be sent to the client as "application/json" media type.
+     *
+     * Used to load all configurations for the QoSMonitor service. Only needed
+     * for testing purposes.
+     *
+     * @return HTTP OK STATUS
+     */
+    @GET
+    @Path("/reload")
+    public Response startService() {
+        monitor.startService();
+        return Response.ok().build();
     }
 
     /**
