@@ -7,10 +7,10 @@
     <artifactId>QoSMonitor</artifactId>
     <packaging>war</packaging>
     <version>1.0-SNAPSHOT</version>
-    <name>QoSMonitor</name>
+    <name>qosmonitor</name>
 
     <build>
-        <finalName>QoSMonitor</finalName>
+        <finalName>qosmonitor</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -18,8 +18,8 @@
                 <version>2.5.1</version>
                 <inherited>true</inherited>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
         </plugins>

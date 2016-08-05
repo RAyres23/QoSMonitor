@@ -23,7 +23,7 @@ public class FTTSE implements Monitor {
 
     private static enum Key {
 
-        BANDWIDTH("bandwidth"), RESPONSETIME("responseTime"), DELAY("delay");
+        BANDWIDTH("bandwidth"), DELAY("delay");
 
         private final String name;
 
@@ -91,6 +91,8 @@ public class FTTSE implements Monitor {
     private SLAVerificationResponse doHardRealTime(Map<String, Double> rule, Map<String, Double> log) {
         SLAVerificationResponse response = new SLAVerificationResponse();
 
+        System.out.println("On the SLAVerificationResponse " + log);
+        
         Key[] keys = Key.values();
 
         for (Key key : keys) {
@@ -102,7 +104,6 @@ public class FTTSE implements Monitor {
                         response.addParameter(new SLAVerificationParameter(key.name, requestedValue, loggedValue));
                     }
                     break;
-                case RESPONSETIME:
                 case DELAY:
                     if (loggedValue > requestedValue) {
                         response.addParameter(new SLAVerificationParameter(key.name, requestedValue, loggedValue));
@@ -127,7 +128,6 @@ public class FTTSE implements Monitor {
         for (MonitorLog log : logs) {
             Map<String, Double> temp = log.getParameters();
             bandwidthMean += temp.get(Key.BANDWIDTH.name);
-            responseTimeMean += temp.get(Key.RESPONSETIME.name);
             delayMean += temp.get(Key.DELAY.name);
         }
 
@@ -143,11 +143,6 @@ public class FTTSE implements Monitor {
                 case BANDWIDTH:
                     if (bandwidthMean < requestedValue) {
                         response.addParameter(new SLAVerificationParameter(key.name, requestedValue, bandwidthMean));
-                    }
-                    break;
-                case RESPONSETIME:
-                    if (responseTimeMean > requestedValue) {
-                        response.addParameter(new SLAVerificationParameter(key.name, requestedValue, responseTimeMean));
                     }
                     break;
                 case DELAY:

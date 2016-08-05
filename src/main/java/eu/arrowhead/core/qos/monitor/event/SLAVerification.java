@@ -9,8 +9,8 @@ import com.google.gson.Gson;
 import eu.arrowhead.core.qos.monitor.database.MongoDatabaseManager;
 import eu.arrowhead.core.qos.monitor.database.MonitorLog;
 import eu.arrowhead.core.qos.monitor.database.MonitorRule;
-import eu.arrowhead.core.qos.monitor.event.model.EventType;
-import eu.arrowhead.core.qos.monitor.event.model.Meta;
+import eu.arrowhead.core.qos.monitor.event.model.Event;
+import eu.arrowhead.core.qos.monitor.event.model.Metadata;
 import eu.arrowhead.core.qos.monitor.type.Monitor;
 import java.util.List;
 import java.util.logging.Level;
@@ -66,13 +66,13 @@ public class SLAVerification implements Runnable {
      * @param parameters instance containing information to create an EventType
      * @return the EventType instance
      */
-    private EventType createEvent(List<SLAVerificationParameter> parameters) {
-        EventType event = new EventType();
-        Meta meta = new Meta();
+    private Event createEvent(List<SLAVerificationParameter> parameters) {
+        Event event = new Event();
+        Metadata meta = new Metadata();
         meta.setSeverity(1);
         event.setDescription(meta);
-        event.setFrom(EventProducer.getProducerType().getName());
-        event.setType(EventProducer.getProducerType().getType());
+        event.setFrom(EventProducer.getProducer());
+        event.setType("event");
 
         event.setPayload(new Gson().toJson(parameters));
 

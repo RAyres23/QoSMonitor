@@ -5,7 +5,7 @@
  */
 package eu.arrowhead.core.qos.monitor.event;
 
-import eu.arrowhead.core.qos.monitor.event.model.ProducerType;
+import eu.arrowhead.core.qos.monitor.event.model.Producer;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,11 +25,11 @@ import javax.ws.rs.core.Response;
  */
 public class ProducerRegistry {
 
-    private ProducerType producerType;
+    private Producer producer;
     private static final Logger LOG = Logger.getLogger(ProducerRegistry.class.getName());
 
     public ProducerRegistry() {
-        initProducerType();
+        initProducer();
     }
 
     /**
@@ -56,12 +56,12 @@ public class ProducerRegistry {
         return props;
     }
 
-    private ProducerType initProducerType() {
-        producerType = new ProducerType();
-        producerType.setUid(getProps().getProperty("producer.uid"));
-        producerType.setType(getProps().getProperty("producer.type"));
-        producerType.setName(getProps().getProperty("producer.name"));
-        return producerType;
+    private Producer initProducer() {
+        producer = new Producer();
+        producer.setUid(getProps().getProperty("producer.uid"));
+        producer.setType(getProps().getProperty("producer.type"));
+        producer.setName(getProps().getProperty("producer.name"));
+        return producer;
     }
 
     public int registerAsProducer() {
@@ -70,12 +70,13 @@ public class ProducerRegistry {
 
         Response response;
         response = target
-                .path(EventProducerConfig.getServiceRegistryAsConsumerPath())
-                .path(producerType.getUid())
+                .path(EventProducerConfig.getServiceRegistryAsProducerPath())
+                .path("producer")
+                .path(producer.getUid())
                 .request(MediaType.APPLICATION_JSON)
-                .post(Entity.json(producerType));
+                .post(Entity.json(producer));
 
-        EventProducer.setProducerType(producerType);
+        EventProducer.setProducer(producer.getUid());
 
         int statusCode = response.getStatus();
 

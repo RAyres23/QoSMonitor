@@ -182,7 +182,8 @@ public class QoSMonitorService {
 
         LOG.log(Level.INFO, "Executing SLAVerification [SEPARATE THREAD]");
 
-        EXEC.execute(new SLAVerification(monitor, rule, log));
+        SLAVerification verification = new SLAVerification(monitor, rule, log);
+        EXEC.execute(verification);
 
     }
 

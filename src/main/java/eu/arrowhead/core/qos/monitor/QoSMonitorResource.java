@@ -17,11 +17,11 @@ import java.util.logging.Logger;
 //import org.apache.log4j.Logger;
 
 /**
- * Root resource (exposed at "qosmonitor" path).
+ * Root resource (exposed at "monitor" path).
  *
  * @author Renato Ayres
  */
-@Path("qosmonitor")
+@Path("monitor")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 public class QoSMonitorResource {

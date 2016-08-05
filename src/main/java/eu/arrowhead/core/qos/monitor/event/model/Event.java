@@ -4,8 +4,6 @@
 // Any modifications to this file will be lost upon recompilation of the source schema. 
 // Generated on: 2015.08.22 at 07:12:59 PM BST 
 //
-
-
 package eu.arrowhead.core.qos.monitor.event.model;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -14,28 +12,30 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for EventType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for Event complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within
+ * this class.
+ *
  * <pre>
- * &lt;complexType name="EventType">
- *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;sequence>
- *         &lt;element name="from" type="{http://www.w3.org/2001/XMLSchema}string"/>
- *         &lt;element name="type" type="{http://www.w3.org/2001/XMLSchema}string"/>
- *         &lt;element name="description" type="{http://www.arrowhead.org/eventhandler/events}Meta"/>
- *         &lt;element name="payload" type="{http://www.w3.org/2001/XMLSchema}string"/>
- *       &lt;/sequence>
- *     &lt;/restriction>
- *   &lt;/complexContent>
- * &lt;/complexType>
+ * &lt;complexType name="Event"&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="from" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *         &lt;element name="type" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *         &lt;element name="description" type="{http://www.arrowhead.org/eventhandler/events}Metadata"/&gt;
+ *         &lt;element name="payload" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EventType", propOrder = {
@@ -46,24 +46,37 @@ import javax.xml.bind.annotation.XmlType;
 })
 
 @XmlRootElement(name = "event")
-public class EventType {
+public class Event {
 
+    /**
+     * Variable containing the event's producer uid.
+     */
     @XmlElement(required = true)
     protected String from;
+
+    /**
+     * Variable containing the event type.
+     */
     @XmlElement(required = true)
     protected String type;
+
+    /**
+     * Variable containing the event's metadata.
+     */
     @XmlElement(required = true)
-    protected Meta description;
+    protected Metadata description;
+
+    /**
+     * Variable containing the event payload.
+     */
     @XmlElement(required = true)
     protected String payload;
 
     /**
      * Gets the value of the from property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String }
+     *
      */
     public String getFrom() {
         return from;
@@ -71,11 +84,9 @@ public class EventType {
 
     /**
      * Sets the value of the from property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
+     *
      */
     public void setFrom(String value) {
         this.from = value;
@@ -83,11 +94,9 @@ public class EventType {
 
     /**
      * Gets the value of the type property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String }
+     *
      */
     public String getType() {
         return type;
@@ -95,11 +104,9 @@ public class EventType {
 
     /**
      * Sets the value of the type property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
+     *
      */
     public void setType(String value) {
         this.type = value;
@@ -107,35 +114,29 @@ public class EventType {
 
     /**
      * Gets the value of the description property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Meta }
-     *     
+     *
+     * @return possible object is {@link Metadata }
+     *
      */
-    public Meta getDescription() {
+    public Metadata getDescription() {
         return description;
     }
 
     /**
      * Sets the value of the description property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Meta }
-     *     
+     *
+     * @param value allowed object is {@link Metadata }
+     *
      */
-    public void setDescription(Meta value) {
+    public void setDescription(Metadata value) {
         this.description = value;
     }
 
     /**
      * Gets the value of the payload property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String }
+     *
      */
     public String getPayload() {
         return payload;
@@ -143,11 +144,9 @@ public class EventType {
 
     /**
      * Sets the value of the payload property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
+     *
      */
     public void setPayload(String value) {
         this.payload = value;

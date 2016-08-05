@@ -4,8 +4,6 @@
 // Any modifications to this file will be lost upon recompilation of the source schema. 
 // Generated on: 2015.08.22 at 07:12:59 PM BST 
 //
-
-
 package eu.arrowhead.core.qos.monitor.event.model;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -14,27 +12,29 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for ProducerType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for Producer complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within
+ * this class.
+ *
  * <pre>
- * &lt;complexType name="ProducerType">
- *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;sequence>
- *         &lt;element name="uid" type="{http://www.w3.org/2001/XMLSchema}string"/>
- *         &lt;element name="name" type="{http://www.w3.org/2001/XMLSchema}string"/>
- *         &lt;element name="type" type="{http://www.w3.org/2001/XMLSchema}string"/>
- *       &lt;/sequence>
- *     &lt;/restriction>
- *   &lt;/complexContent>
- * &lt;/complexType>
+ * &lt;complexType name="Producer&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="uid" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *         &lt;element name="name" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *         &lt;element name="type" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ProducerType", propOrder = {
@@ -44,22 +44,31 @@ import javax.xml.bind.annotation.XmlType;
 })
 
 @XmlRootElement(name = "producer")
-public class ProducerType {
+public class Producer {
 
+    /**
+     * Variable containing the producer uid.
+     */
     @XmlElement(required = true)
     protected String uid;
+
+    /**
+     * Variable containing the producer name.
+     */
     @XmlElement(required = true)
     protected String name;
+
+    /**
+     * Variable containing the producer event type production.
+     */
     @XmlElement(required = true)
     protected String type;
-    
+
     /**
      * Gets the value of the uid property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String }
+     *
      */
     public String getUid() {
         return uid;
@@ -67,11 +76,9 @@ public class ProducerType {
 
     /**
      * Sets the value of the uid property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
+     *
      */
     public void setUid(String value) {
         this.uid = value;
@@ -79,11 +86,9 @@ public class ProducerType {
 
     /**
      * Gets the value of the name property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String }
+     *
      */
     public String getName() {
         return name;
@@ -91,11 +96,9 @@ public class ProducerType {
 
     /**
      * Sets the value of the name property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
+     *
      */
     public void setName(String value) {
         this.name = value;
@@ -103,11 +106,9 @@ public class ProducerType {
 
     /**
      * Gets the value of the type property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String }
+     *
      */
     public String getType() {
         return type;
@@ -115,11 +116,9 @@ public class ProducerType {
 
     /**
      * Sets the value of the type property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
+     *
      */
     public void setType(String value) {
         this.type = value;

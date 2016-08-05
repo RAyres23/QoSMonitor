@@ -4,8 +4,6 @@
 // Any modifications to this file will be lost upon recompilation of the source schema. 
 // Generated on: 2015.08.22 at 07:12:59 PM BST 
 //
-
-
 package eu.arrowhead.core.qos.monitor.event.model;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -13,38 +11,41 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for Meta complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for Metadata complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within
+ * this class.
+ *
  * <pre>
- * &lt;complexType name="Meta">
- *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;attribute name="severity" type="{http://www.w3.org/2001/XMLSchema}int" />
- *     &lt;/restriction>
- *   &lt;/complexContent>
- * &lt;/complexType>
+ * &lt;complexType name="Metadata"&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;attribute name="severity" type="{http://www.w3.org/2001/XMLSchema}int" /&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Meta")
-public class Meta {
+public class Metadata {
 
+    /**
+     * Variable containing the metadata severity.
+     */
     @XmlAttribute
     protected Integer severity;
 
     /**
      * Gets the value of the severity property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Integer }
-     *     
+     *
+     * @return possible object is {@link Integer }
+     *
      */
     public Integer getSeverity() {
         return severity;
@@ -52,11 +53,9 @@ public class Meta {
 
     /**
      * Sets the value of the severity property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Integer }
-     *     
+     *
+     * @param value allowed object is {@link Integer }
+     *
      */
     public void setSeverity(Integer value) {
         this.severity = value;

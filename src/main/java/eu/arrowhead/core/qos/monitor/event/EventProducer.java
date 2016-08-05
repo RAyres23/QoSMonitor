@@ -5,8 +5,8 @@
  */
 package eu.arrowhead.core.qos.monitor.event;
 
-import eu.arrowhead.core.qos.monitor.event.model.EventType;
-import eu.arrowhead.core.qos.monitor.event.model.ProducerType;
+import eu.arrowhead.core.qos.monitor.event.model.Event;
+import eu.arrowhead.core.qos.monitor.event.model.Producer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ws.rs.client.Client;
@@ -24,11 +24,11 @@ public class EventProducer {
 
     private final Client client;
     private final WebTarget target;
-    private final EventType event;
-    private static ProducerType producerType;
+    private final Event event;
+    private static String producer;
     private static final Logger LOG = Logger.getLogger(EventProducer.class.getName());
 
-    public EventProducer(EventType event) {
+    public EventProducer(Event event) {
         client = ClientBuilder.newClient();
         target = client.target(EventProducerConfig.getServiceURI());
         this.event = event;
@@ -65,16 +65,16 @@ public class EventProducer {
         return target;
     }
 
-    public EventType getEventType() {
+    public Event getEventType() {
         return event;
     }
 
-    public static ProducerType getProducerType() {
-        return producerType;
+    public static String getProducer() {
+        return producer;
     }
 
-    public static void setProducerType(ProducerType producerType) {
-        EventProducer.producerType = producerType;
+    public static void setProducer(String producer) {
+        EventProducer.producer = producer;
     }
 
     public int publishEvent() {
@@ -82,7 +82,7 @@ public class EventProducer {
 
         Response response = getTarget()
                 .path(EventProducerConfig.getServicePublishEventPath())
-                .path(getProducerType().getUid())
+                .path(getProducer())
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.json(event));
 
