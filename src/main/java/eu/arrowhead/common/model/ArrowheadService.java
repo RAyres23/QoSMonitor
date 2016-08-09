@@ -5,58 +5,77 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+/**
+ * Entity class for storing Arrowhead Services in the database. The
+ * "service_group" and service_definition" columns must be unique together.
+ */
 @XmlRootElement
 public class ArrowheadService {
 
-	private String serviceGroup;
-	private String serviceDefinition;
-	private List<String> interfaces = new ArrayList<String>();
-	private String metaData;
-	
-	public ArrowheadService(){
-		
-	}
-	
-	public ArrowheadService(String serviceGroup, String serviceDefinition,
-			List<String> interfaces, String metaData) {
-		super();
-		this.serviceGroup = serviceGroup;
-		this.serviceDefinition = serviceDefinition;
-		this.interfaces = interfaces;
-		this.metaData = metaData;
-	}
+    private String serviceGroup;
+    private String serviceDefinition;
+    private List<String> interfaces = new ArrayList<String>();
+    private List<ServiceMetadata> serviceMetadata;
 
-	public String getServiceGroup() {
-		return serviceGroup;
-	}
+    public ArrowheadService() {
+    }
 
-	public void setServiceGroup(String serviceGroup) {
-		this.serviceGroup = serviceGroup;
-	}
+    public ArrowheadService(String serviceGroup, String serviceDefinition,
+            List<String> interfaces, List<ServiceMetadata> serviceMetadata) {
+        this.serviceGroup = serviceGroup;
+        this.serviceDefinition = serviceDefinition;
+        this.interfaces = interfaces;
+        this.serviceMetadata = serviceMetadata;
+    }
 
-	public String getServiceDefinition() {
-		return serviceDefinition;
-	}
+    public String getServiceGroup() {
+        return serviceGroup;
+    }
 
-	public void setServiceDefinition(String serviceDefinition) {
-		this.serviceDefinition = serviceDefinition;
-	}
+    public void setServiceGroup(String serviceGroup) {
+        this.serviceGroup = serviceGroup;
+    }
 
-	public List<String> getInterfaces() {
-		return interfaces;
-	}
+    public String getServiceDefinition() {
+        return serviceDefinition;
+    }
 
-	public void setInterfaces(List<String> interfaces) {
-		this.interfaces = interfaces;
-	}
+    public void setServiceDefinition(String serviceDefinition) {
+        this.serviceDefinition = serviceDefinition;
+    }
 
-	public String getMetaData() {
-		return metaData;
-	}
+    public List<String> getInterfaces() {
+        return interfaces;
+    }
 
-	public void setMetaData(String metaData) {
-		this.metaData = metaData;
-	}
-	
-	
+    public void setInterfaces(List<String> interfaces) {
+        this.interfaces = interfaces;
+    }
+
+    public void setInterfaces(String oneInterface) {
+        List<String> interfaces = new ArrayList<String>();
+        interfaces.add(oneInterface);
+        this.interfaces = interfaces;
+    }
+
+    public List<ServiceMetadata> getServiceMetadata() {
+        return serviceMetadata;
+    }
+
+    public void setServiceMetadata(List<ServiceMetadata> metaData) {
+        this.serviceMetadata = metaData;
+    }
+
+    public boolean isValid() {
+        if (serviceGroup == null || serviceDefinition == null) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "(" + serviceGroup + ":" + serviceDefinition + ")";
+    }
+
 }

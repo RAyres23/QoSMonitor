@@ -6,12 +6,15 @@
 package eu.arrowhead.core.qos.monitor.register;
 
 import eu.arrowhead.common.model.ArrowheadSystem;
+import eu.arrowhead.common.model.ServiceMetadata;
 import eu.arrowhead.common.model.messages.ServiceRegistryEntry;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -98,7 +101,11 @@ public class Hungary implements ServiceRegister {
         ArrowheadSystem provider = createArrowheadMonitorSystem();
 
         String serviceURI = temp.getProperty("monitor.service.uri");
-        String serviceMetadata = temp.getProperty("monitor.service.metadata");
+        List<ServiceMetadata> serviceMetadata = new ArrayList<>();
+        ServiceMetadata serviceMetadata1 = new ServiceMetadata(temp.getProperty("monitor.service.metadata.value"), temp.getProperty("monitor.service.metadata.value"));
+
+        serviceMetadata.add(serviceMetadata1);
+
         String tsig_key = temp.getProperty("serviceregistry.tsig");
         String version = temp.getProperty("monitor.service.version");
 
@@ -111,18 +118,18 @@ public class Hungary implements ServiceRegister {
         String systemGroup = temp.getProperty("monitor.system.group");
         String systemName = temp.getProperty("monitor.system.name");
 
-        String IPAddress;
+        String address;
         try {
-            IPAddress = Inet4Address.getLocalHost().getHostAddress();
+            address = Inet4Address.getLocalHost().getHostAddress();
         } catch (UnknownHostException ex) {
             LOG.log(Level.WARNING, "Not able to get local host from system. Using default value in hungary.properties file");
-            IPAddress = temp.getProperty("monitor.system.IPAddress");
+            address = temp.getProperty("monitor.system.IPAddress");
         }
 
         String port = temp.getProperty("monitor.system.port");
         String authenticationInfo = temp.getProperty("authenticationInfo");
 
-        return new ArrowheadSystem(systemGroup, systemName, IPAddress, port, authenticationInfo);
+        return new ArrowheadSystem(systemGroup, systemName, address, port, authenticationInfo);
     }
 
 }
