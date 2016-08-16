@@ -2,9 +2,10 @@ package eu.arrowhead.core.qos.monitor.type;
 
 import eu.arrowhead.common.model.messages.QoSMonitorAddRule;
 import eu.arrowhead.common.model.messages.QoSMonitorLog;
-import eu.arrowhead.core.qos.monitor.event.SLAVerificationResponse;
 import eu.arrowhead.core.qos.monitor.database.MonitorLog;
 import eu.arrowhead.core.qos.monitor.database.MonitorRule;
+import eu.arrowhead.core.qos.monitor.event.SLAVerificationResponse;
+import eu.arrowhead.core.qos.monitor.event.model.Event;
 
 public interface Monitor {
 
@@ -23,6 +24,13 @@ public interface Monitor {
      * @return instance of created MonitorLog
      */
     public MonitorLog filterLogMessage(QoSMonitorLog message);
+
+    /**
+     * Adds a new Event to the queue of events.
+     *
+     * @param event new Event to add
+     */
+    public void addEventToPresentationQueue(Event event);
 
     /**
      * Verifies if the SLA is being respected regarding the existing rule and

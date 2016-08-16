@@ -130,4 +130,10 @@ public class QoSMonitorResource {
         // FIXME
         return Response.ok("Logged!").build();
     }
+
+    @POST
+    @Path("/event")
+    public Response sendEvent() {
+        return Response.ok("Sent").build();
+    }
 }

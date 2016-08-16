@@ -40,7 +40,7 @@ public class QoSMonitorService {
     //FIXME only used in startService
     private static final List<String> REGISTERED = new ArrayList();
     //FIXME only used in startService
-    private static final String MONITOR_REGISTRY_PACKAGE = "eu.arrowhead.core.qos.monitor.register.";
+    private final String MONITOR_REGISTRY_PACKAGE = "eu.arrowhead.core.qos.monitor.register.";
 
     /**
      * A new QoSMonitorService instance with a initialized MongoDatabaseManager
@@ -64,7 +64,7 @@ public class QoSMonitorService {
         //Register QoSMonitor service in service registry
         List<String> registries = getServiceRegistry();
 
-        for (String registry : registries) {
+        registries.stream().forEach((registry) -> {
             try {
                 LOG.log(Level.INFO, "Getting " + MONITOR_REGISTRY_PACKAGE + "{0} class.", registry);
                 ServiceRegister register = getRegistryClass(registry);
@@ -86,7 +86,7 @@ public class QoSMonitorService {
             } catch (InstantiationException | IllegalAccessException ex) {
                 LOG.log(Level.SEVERE, ex.getMessage());
             }
-        }
+        });
 
         // [PT] Starting MongoDB, loading EventProducer configurations and registering in EventHandler
         EventProducerConfig.loadConfigurations();
@@ -169,7 +169,7 @@ public class QoSMonitorService {
             throw new InvalidMonitorTypeException(excMessage);
         }
 
-        if (!(message.getType().equals(message.getType()))) {
+        if (!(message.getType().equals(rule.getType()))) {
             String excMessage = "Monitor type different from the existing rule for the given services."
                     + "\nYour type: " + message.getType() + "Existing rule type: " + rule.getType();
             LOG.log(Level.SEVERE, excMessage);

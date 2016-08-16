@@ -13,9 +13,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ws.rs.client.Client;
@@ -102,9 +105,13 @@ public class Hungary implements ServiceRegister {
 
         String serviceURI = temp.getProperty("monitor.service.uri");
         List<ServiceMetadata> serviceMetadata = new ArrayList<>();
-        ServiceMetadata serviceMetadata1 = new ServiceMetadata(temp.getProperty("monitor.service.metadata.value"), temp.getProperty("monitor.service.metadata.value"));
 
-        serviceMetadata.add(serviceMetadata1);
+        String[] keys = temp.getProperty("monitor.service.metadata.key").split(",");
+        Queue<String> values = new ArrayDeque<>(Arrays.asList(temp.getProperty("monitor.service.metadata.value").split(",")));
+
+        for (String key : keys) {
+            serviceMetadata.add(new ServiceMetadata(key, values.remove()));
+        }
 
         String tsig_key = temp.getProperty("serviceregistry.tsig");
         String version = temp.getProperty("monitor.service.version");
@@ -123,11 +130,11 @@ public class Hungary implements ServiceRegister {
             address = Inet4Address.getLocalHost().getHostAddress();
         } catch (UnknownHostException ex) {
             LOG.log(Level.WARNING, "Not able to get local host from system. Using default value in hungary.properties file");
-            address = temp.getProperty("monitor.system.IPAddress");
+            address = temp.getProperty("monitor.system.address");
         }
 
         String port = temp.getProperty("monitor.system.port");
-        String authenticationInfo = temp.getProperty("authenticationInfo");
+        String authenticationInfo = temp.getProperty("monitor.system.authenticationInfo");
 
         return new ArrowheadSystem(systemGroup, systemName, address, port, authenticationInfo);
     }

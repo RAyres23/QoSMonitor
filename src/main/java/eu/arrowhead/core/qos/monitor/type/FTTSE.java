@@ -1,27 +1,30 @@
 package eu.arrowhead.core.qos.monitor.type;
 
 import eu.arrowhead.common.exception.InvalidParameterException;
-import eu.arrowhead.common.exception.MissingParameterException;
 import eu.arrowhead.common.model.ArrowheadSystem;
+import eu.arrowhead.common.model.messages.QoSMonitorAddRule;
+import eu.arrowhead.common.model.messages.QoSMonitorLog;
+import eu.arrowhead.core.qos.monitor.database.MonitorLog;
+import eu.arrowhead.core.qos.monitor.database.MonitorRule;
+import eu.arrowhead.core.qos.monitor.event.SLAVerificationParameter;
+import eu.arrowhead.core.qos.monitor.event.SLAVerificationResponse;
+import eu.arrowhead.core.qos.monitor.event.model.Event;
+import eu.arrowhead.core.qos.monitor.type.presentation.FTTSE_Presentation;
+import eu.arrowhead.core.qos.monitor.type.presentation.PresentationData;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import eu.arrowhead.common.model.messages.QoSMonitorAddRule;
-import eu.arrowhead.common.model.messages.QoSMonitorLog;
-import eu.arrowhead.core.qos.monitor.event.SLAVerificationParameter;
-import eu.arrowhead.core.qos.monitor.event.SLAVerificationResponse;
-import eu.arrowhead.core.qos.monitor.database.MonitorLog;
-import eu.arrowhead.core.qos.monitor.database.MonitorRule;
-import java.util.Arrays;
-import java.util.logging.Level;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Logger;
 
 public class FTTSE implements Monitor {
 
     public static final Logger LOG = Logger.getLogger(FTTSE.class.getName());
+    private static final ConcurrentMap<String, PresentationData> DATA = new ConcurrentHashMap();
 
-    private static enum Key {
+    private enum Key {
 
         BANDWIDTH("bandwidth"), DELAY("delay");
 
@@ -48,7 +51,24 @@ public class FTTSE implements Monitor {
 
     @Override
     public MonitorLog filterLogMessage(QoSMonitorLog message) {
-        return new MonitorLog(message.getType(), message.getTimestamp(), filterParameters(message.getParameters()));
+        MonitorLog log = new MonitorLog(message.getType(), message.getTimestamp(), filterParameters(message.getParameters()));
+
+        String queueKey = (message.getProvider().getSystemGroup() + message.getProvider().getSystemName() + message.getConsumer().getSystemGroup() + message.getConsumer().getSystemName());
+        if (!(DATA.containsKey(queueKey))) {
+            PresentationData data = new PresentationData();
+            DATA.put(queueKey, data);
+            Runnable r = () -> {
+                new FTTSE_Presentation(queueKey, data);
+            };
+            new Thread(r).start();
+        }
+
+        return log;
+    }
+
+    @Override
+    public void addEventToPresentationQueue(Event event) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -92,7 +112,7 @@ public class FTTSE implements Monitor {
         SLAVerificationResponse response = new SLAVerificationResponse();
 
         System.out.println("On the SLAVerificationResponse " + log);
-        
+
         Key[] keys = Key.values();
 
         for (Key key : keys) {

@@ -246,17 +246,17 @@ public class MongoDatabaseManager {
      * Gets a Log collection from the MongoDatabase instance, identified by the
      * given parameters.
      *
-     * @param providerSystemName the provider system name
      * @param providerSystemGroup the provider system group
-     * @param consumerSystemName the consumer system name
+     * @param providerSystemName the provider system name
      * @param consumerSystemGroup the consumer system group
+     * @param consumerSystemName the consumer system name
      * @return the Log collection from MongoDatabase
      */
     private MongoCollection<MonitorLog> getLogCollection(
-            String providerSystemName, String providerSystemGroup,
-            String consumerSystemName, String consumerSystemGroup) {
+            String providerSystemGroup, String providerSystemName,
+            String consumerSystemGroup, String consumerSystemName) {
 
-        String name = providerSystemName + providerSystemGroup + consumerSystemName + consumerSystemGroup;
+        String name = providerSystemGroup + providerSystemName + consumerSystemGroup + consumerSystemName;
 
         MongoCollection< MonitorLog> logs = getDatabase().getCollection(name, MonitorLog.class)
                 .withCodecRegistry(getLogCodecRegistry())
@@ -333,18 +333,18 @@ public class MongoDatabaseManager {
      * Find a rule with the given provider system definition, provider system
      * group, consumer system definition, and consumer system group.
      *
-     * @param providerSystemName the provider system name
      * @param providerSystemGroup the provider system group
-     * @param consumerSystemName the consumer system name
+     * @param providerSystemName the provider system name
      * @param consumerSystemGroup the consumer system group
+     * @param consumerSystemName the consumer system name
      * @return the wanted rule. If no rule matched the given parameters, then
      * null is returned
      */
-    public MonitorRule findRule(String providerSystemName, String providerSystemGroup,
-            String consumerSystemName, String consumerSystemGroup) {
+    public MonitorRule findRule(String providerSystemGroup, String providerSystemName,
+            String consumerSystemGroup, String consumerSystemName) {
 
-        Bson filter = createRuleFilter(providerSystemName, providerSystemGroup,
-                consumerSystemName, consumerSystemGroup);
+        Bson filter = createRuleFilter(providerSystemGroup, providerSystemName,
+                consumerSystemGroup, consumerSystemName);
 
         MonitorRule rule = getRuleCollection().find(
                 filter,
@@ -452,8 +452,8 @@ public class MongoDatabaseManager {
             throws MongoWriteException, MongoWriteConcernException, MongoException {
 
         MongoCollection<MonitorLog> logs = getLogCollection(
-                provider.getSystemName(), provider.getSystemGroup(),
-                consumer.getSystemName(), consumer.getSystemGroup());
+                provider.getSystemGroup(), provider.getSystemName(),
+                consumer.getSystemGroup(), consumer.getSystemName());
 
         logs.insertOne(log);
     }
@@ -508,20 +508,20 @@ public class MongoDatabaseManager {
      * Creates a new Bson filter used to find a specific rule identified by the
      * given parameters. Uses the Rule collection.
      *
-     * @param providerSystemName the provider system definition
      * @param providerSystemGroup the provider system group
-     * @param consumerSystemName the consumer system definition
+     * @param providerSystemName the provider system definition
      * @param consumerSystemGroup the consumer system group
+     * @param consumerSystemName the consumer system definition
      * @return bson filter built with the given parameters
      */
-    private Bson createRuleFilter(String providerSystemName, String providerSystemGroup, String consumerSystemName, String consumerSystemGroup) {
+    private Bson createRuleFilter(String providerSystemGroup, String providerSystemName, String consumerSystemGroup, String consumerSystemName) {
         return Filters.and(
                 Filters.and(
-                        Filters.eq(MongoDBNames.PROVIDER_SYSTEM_NAME, providerSystemName),
-                        Filters.eq(MongoDBNames.PROVIDER_SYSTEM_GROUP, providerSystemGroup)),
+                        Filters.eq(MongoDBNames.PROVIDER_SYSTEM_GROUP, providerSystemGroup),
+                        Filters.eq(MongoDBNames.PROVIDER_SYSTEM_NAME, providerSystemName)),
                 Filters.and(
-                        Filters.eq(MongoDBNames.CONSUMER_SYSTEM_NAME, consumerSystemName),
-                        Filters.eq(MongoDBNames.CONSUMER_SYSTEM_GROUP, consumerSystemGroup)
+                        Filters.eq(MongoDBNames.CONSUMER_SYSTEM_GROUP, consumerSystemGroup),
+                        Filters.eq(MongoDBNames.CONSUMER_SYSTEM_NAME, consumerSystemName)
                 )
         );
     }
