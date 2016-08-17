@@ -1,9 +1,5 @@
 package eu.arrowhead.core.qos.monitor.database;
 
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.util.Properties;
-
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.MongoException;
@@ -16,11 +12,13 @@ import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Sorts;
-
 import eu.arrowhead.common.model.ArrowheadSystem;
 import eu.arrowhead.core.qos.monitor.database.provider.MonitorLogCodecProvider;
 import eu.arrowhead.core.qos.monitor.database.provider.MonitorRuleCodecProvider;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.bson.codecs.configuration.CodecRegistries;
@@ -37,11 +35,11 @@ import org.bson.conversions.Bson;
 public class MongoDatabaseManager {
 
     private static MongoDatabaseManager instance;
-    private static MongoClient client;
-    private static MongoDatabase database;
-    private static MongoCollection<MonitorRule> rules;
-    private static CodecRegistry logCodecRegistry;
-    private static CodecRegistry ruleCodecRegistry;
+    private MongoClient client;
+    private MongoDatabase database;
+    private MongoCollection<MonitorRule> rules;
+    private CodecRegistry logCodecRegistry;
+    private CodecRegistry ruleCodecRegistry;
     private Properties props;
     private static final Logger LOG = Logger.getLogger(MongoDatabaseManager.class.getName());
 
@@ -74,7 +72,7 @@ public class MongoDatabaseManager {
     /**
      * Starts the MongoDatabaseManager
      */
-    public static void startManager() {
+    public void startManager() {
         initInstance();
     }
 
@@ -82,7 +80,7 @@ public class MongoDatabaseManager {
      * Restarts the MongoDatabaseManager with a new properties file.
      *
      */
-    public static void restartManager() {
+    public void restartManager() {
         stopManager();
         initInstance();
     }
@@ -90,7 +88,7 @@ public class MongoDatabaseManager {
     /**
      * Closes the MongoClient connection with MongoDB.
      */
-    public static void stopManager() {
+    public void stopManager() {
         if (client != null) {
             rules = null;
             database = null;
@@ -165,7 +163,7 @@ public class MongoDatabaseManager {
     /**
      * Initializes the CodecRegistry for the MonitorLog class.
      */
-    private static void initLogCodecRegistry() {
+    private void initLogCodecRegistry() {
         logCodecRegistry = CodecRegistries.fromRegistries(MongoClient.getDefaultCodecRegistry(),
                 CodecRegistries.fromProviders(new MonitorLogCodecProvider()));
     }
@@ -173,7 +171,7 @@ public class MongoDatabaseManager {
     /**
      * Initializes the CodecRegistry for the MonitorRule class.
      */
-    private static void initRuleCodecRegistry() {
+    private void initRuleCodecRegistry() {
         ruleCodecRegistry = CodecRegistries.fromRegistries(MongoClient.getDefaultCodecRegistry(),
                 CodecRegistries.fromProviders(new MonitorRuleCodecProvider()));
     }
@@ -275,29 +273,29 @@ public class MongoDatabaseManager {
      * @return Always returns true. May suffer some changes in the future
      */
     public boolean deleteCollection(ArrowheadSystem provider, ArrowheadSystem consumer) {
-        return deleteCollection(provider.getSystemName(), provider.getSystemGroup(),
-                consumer.getSystemName(), consumer.getSystemGroup());
+        return deleteCollection(provider.getSystemGroup(), provider.getSystemName(),
+                consumer.getSystemGroup(), consumer.getSystemName());
     }
 
     /**
      * Deletes a collection identified by the system name and system group from
      * the service provider and the service consumer in the given parameters.
      *
-     * @param providerSystemName the provider system name
      * @param providerSystemGroup the provider system group
-     * @param consumerSystemName the consumer system name
+     * @param providerSystemName the provider system name
      * @param consumerSystemGroup the consumer system group
+     * @param consumerSystemName the consumer system name
      * @return Always returns true. May suffer some changes in the future
      */
-    public boolean deleteCollection(String providerSystemName, String providerSystemGroup,
-            String consumerSystemName, String consumerSystemGroup) {
+    public boolean deleteCollection(String providerSystemGroup, String providerSystemName,
+            String consumerSystemGroup, String consumerSystemName) {
 
-        MongoCollection<MonitorLog> logs = getLogCollection(providerSystemName, providerSystemGroup,
-                consumerSystemName, consumerSystemGroup);
+        MongoCollection<MonitorLog> logs = getLogCollection(providerSystemGroup, providerSystemName,
+                consumerSystemGroup, consumerSystemName);
 
         logs.drop();
 
-        LOG.log(Level.INFO, "{0}{1}{2}{3} droped.", new String[]{providerSystemName, providerSystemGroup, consumerSystemName, consumerSystemGroup});
+        LOG.log(Level.INFO, "{0}{1}{2}{3} droped.", new String[]{providerSystemGroup, providerSystemName, consumerSystemGroup, consumerSystemName});
 
         return true;
     }
@@ -325,8 +323,8 @@ public class MongoDatabaseManager {
      * null is returned
      */
     public MonitorRule findRule(ArrowheadSystem provider, ArrowheadSystem consumer) {
-        return findRule(provider.getSystemName(), provider.getSystemGroup(),
-                consumer.getSystemName(), consumer.getSystemGroup());
+        return findRule(provider.getSystemGroup(), provider.getSystemName(),
+                consumer.getSystemGroup(), consumer.getSystemName());
     }
 
     /**
@@ -365,10 +363,10 @@ public class MongoDatabaseManager {
      */
     public boolean existsRule(ArrowheadSystem provider, ArrowheadSystem consumer) {
 
-        Bson filter = createRuleFilter(provider.getSystemName(),
-                provider.getSystemGroup(),
-                consumer.getSystemName(),
-                consumer.getSystemGroup());
+        Bson filter = createRuleFilter(provider.getSystemGroup(),
+                provider.getSystemName(),
+                consumer.getSystemGroup(),
+                consumer.getSystemName());
 
         MonitorRule rule = getRuleCollection().find(
                 filter,
@@ -388,8 +386,8 @@ public class MongoDatabaseManager {
      */
     public boolean replaceRule(MonitorRule rule) {
 
-        deleteRule(rule.getProviderSystemName(), rule.getProviderSystemGroup(),
-                rule.getConsumerSystemName(), rule.getConsumerSystemGroup());
+        deleteRule(rule.getProviderSystemGroup(), rule.getProviderSystemName(),
+                rule.getConsumerSystemGroup(), rule.getConsumerSystemName());
 
         insertRule(rule);
 
@@ -406,31 +404,31 @@ public class MongoDatabaseManager {
      * @return Always returns true. May suffer some changes in the future
      */
     public boolean deleteRule(ArrowheadSystem provider, ArrowheadSystem consumer) {
-        return deleteRule(provider.getSystemName(), provider.getSystemGroup(),
-                consumer.getSystemName(), consumer.getSystemGroup());
+        return deleteRule(provider.getSystemGroup(), provider.getSystemName(),
+                consumer.getSystemGroup(), consumer.getSystemName());
     }
 
     /**
      * Checks if a rule exists in the MongoDatabase instance and deletes it. The
-     * rule is identified by the system name and system group information in the
+     * rule is identified by the system group and system name information in the
      * given parameters. Uses the Rule collection.
      *
-     * @param providerSystemName the provider system name
      * @param providerSystemGroup the provider system group
-     * @param consumerSystemName the consumer system name
+     * @param providerSystemName the provider system name
      * @param consumerSystemGroup the consumer system group
+     * @param consumerSystemName the consumer system name
      * @return Always returns true. May suffer some changes in the future
      */
-    public boolean deleteRule(String providerSystemName, String providerSystemGroup,
-            String consumerSystemName, String consumerSystemGroup) {
+    public boolean deleteRule(String providerSystemGroup, String providerSystemName,
+            String consumerSystemGroup, String consumerSystemName) {
 
-        Bson filter = createRuleFilter(providerSystemName, providerSystemGroup,
-                consumerSystemName, consumerSystemGroup);
+        Bson filter = createRuleFilter(providerSystemGroup, providerSystemName,
+                consumerSystemGroup, consumerSystemName);
 
         getRuleCollection().findOneAndDelete(filter);
 
-        deleteCollection(providerSystemName, providerSystemGroup,
-                consumerSystemName, consumerSystemGroup);
+        deleteCollection(providerSystemGroup, providerSystemName,
+                consumerSystemGroup, consumerSystemName);
 
         return true;
     }
@@ -466,8 +464,8 @@ public class MongoDatabaseManager {
      */
     public MonitorLog[] getLastNLogs(MonitorRule rule) {
         MongoCollection<MonitorLog> logs = getLogCollection(
-                rule.getProviderSystemName(), rule.getProviderSystemGroup(),
-                rule.getConsumerSystemName(), rule.getConsumerSystemGroup());
+                rule.getProviderSystemGroup(), rule.getProviderSystemName(),
+                rule.getConsumerSystemGroup(), rule.getConsumerSystemName());
 
         MongoCursor<MonitorLog> sorted = logs.find().sort(Sorts.descending(MongoDBNames.TIMESTAMP)).iterator();
 
@@ -509,9 +507,9 @@ public class MongoDatabaseManager {
      * given parameters. Uses the Rule collection.
      *
      * @param providerSystemGroup the provider system group
-     * @param providerSystemName the provider system definition
+     * @param providerSystemName the provider system name
      * @param consumerSystemGroup the consumer system group
-     * @param consumerSystemName the consumer system definition
+     * @param consumerSystemName the consumer system name
      * @return bson filter built with the given parameters
      */
     private Bson createRuleFilter(String providerSystemGroup, String providerSystemName, String consumerSystemGroup, String consumerSystemName) {

@@ -5,8 +5,19 @@
  */
 package eu.arrowhead.core.qos.monitor.type.presentation;
 
-import javafx.scene.chart.AreaChart;
-import javafx.scene.chart.XYChart.Series;
+import eu.arrowhead.core.qos.monitor.database.MonitorLog;
+import eu.arrowhead.core.qos.monitor.type.FTTSE;
+import eu.arrowhead.core.qos.monitor.type.presentation.model.PresentationData;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.HashMap;
+import java.util.Map;
+import javafx.animation.AnimationTimer;
+import javafx.collections.ObservableList;
+import javafx.scene.Scene;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart.Data;
+import javafx.scene.layout.FlowPane;
 
 /**
  *
@@ -14,8 +25,8 @@ import javafx.scene.chart.XYChart.Series;
  */
 public class FTTSE_Presentation extends Presentation {
 
-    private Series series;
-    
+    private final Map<Key, SceneNode> nodes = new HashMap<>();
+
     private enum Key {
 
         BANDWIDTH("bandwidth"), DELAY("delay");
@@ -28,29 +39,90 @@ public class FTTSE_Presentation extends Presentation {
     }
 
     public FTTSE_Presentation(String queueKey, PresentationData data) {
-        super(queueKey, data);
+        super("FTTSE Communication - " + queueKey, queueKey, data);
     }
 
     @Override
-    protected void init() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    protected Scene init() {
+        FlowPane root = new FlowPane();
+
+        Key[] keys = Key.values();
+        for (Key key : keys) {
+            SceneNode node = new SceneNode(SceneType.AREACHART, key.name);
+            nodes.put(key, node);
+            root.getChildren().add(node.getChart());
+        }
+
+        return new Scene(root);
+    }
+
+    // -- Timeline gets called in the JavaFX Main thread
+    @Override
+    protected void prepareTimeline() {
+        // Every frame to take any data from queue and add to chart
+        new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                addDataToSeries();
+            }
+        }.start();
     }
 
     @Override
     protected void addDataToSeries() {
-        for (int i = 0; i < 20; i++) { //-- add 20 numbers to the plot+
+
+        boolean dataChanged = false;
+
+        Key[] keys = Key.values();
+        for (int i = 0; i < 10; i++) { //-- add 20 numbers to the plot+
             if (data.getLogs().isEmpty()) {
                 break;
             }
-            series.getData().add(new AreaChart.Data(xSeriesData++, data.remove()));
+
+            MonitorLog log = data.getLogs().remove();
+
+            for (Key key : keys) {
+                Double value = log.getParameters().get(key.name);
+                if (value == null) {
+                    continue;
+                }
+                SceneNode node = nodes.get(key);
+                node.getSeries().getData().add(new Data(node.getXSeriesDataAndIncrement(), value));
+                dataChanged = true;
+            }
         }
-        // remove points to keep us at no more than MAX_DATA_POINTS
-        if (series.getData().size() > MAX_DATA_POINTS) {
-            series.getData().remove(0, series.getData().size() - MAX_DATA_POINTS);
+
+        if (!dataChanged) {
+            return;
         }
-        // update 
-        xAxis.setLowerBound(xSeriesData - MAX_DATA_POINTS);
-        xAxis.setUpperBound(xSeriesData - 1);
+
+        for (Key key : keys) {
+            SceneNode node = nodes.get(key);
+            ObservableList nodeSeriesData = node.getSeries().getData();
+            NumberAxis xAxis = node.getXAxis();
+
+            // remove points to keep us at no more than MAX_DATA_POINTS
+            if (nodeSeriesData.size() > MAX_DATA_POINTS) {
+                nodeSeriesData.remove(0, nodeSeriesData.size() - MAX_DATA_POINTS);
+            }
+
+            int xSeriesData = node.getXSeriesData();
+
+            // update 
+            xAxis.setLowerBound(xSeriesData - MAX_DATA_POINTS);
+            xAxis.setUpperBound(xSeriesData - 1);
+        }
+
+    }
+
+    @Override
+    protected void closeWindow() {
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                FTTSE.getData().remove(queueKey);
+            }
+        });
     }
 
 }

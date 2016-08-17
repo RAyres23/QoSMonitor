@@ -10,19 +10,18 @@ import eu.arrowhead.core.qos.monitor.event.SLAVerificationParameter;
 import eu.arrowhead.core.qos.monitor.event.SLAVerificationResponse;
 import eu.arrowhead.core.qos.monitor.event.model.Event;
 import eu.arrowhead.core.qos.monitor.type.presentation.FTTSE_Presentation;
-import eu.arrowhead.core.qos.monitor.type.presentation.PresentationData;
+import eu.arrowhead.core.qos.monitor.type.presentation.model.PresentationData;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Logger;
 
 public class FTTSE implements Monitor {
 
     public static final Logger LOG = Logger.getLogger(FTTSE.class.getName());
-    private static final ConcurrentMap<String, PresentationData> DATA = new ConcurrentHashMap();
+//    private static final Map<String, PresentationData> DATA = new ConcurrentHashMap();
+    private static final Map<String, PresentationData> DATA = new HashMap();
 
     private enum Key {
 
@@ -36,6 +35,10 @@ public class FTTSE implements Monitor {
     }
 
     public FTTSE() {
+    }
+
+    public static Map<String, PresentationData> getData() {
+        return DATA;
     }
 
     @Override
@@ -57,10 +60,13 @@ public class FTTSE implements Monitor {
         if (!(DATA.containsKey(queueKey))) {
             PresentationData data = new PresentationData();
             DATA.put(queueKey, data);
+            data.getLogs().add(log);
             Runnable r = () -> {
                 new FTTSE_Presentation(queueKey, data);
             };
             new Thread(r).start();
+        } else {
+            DATA.get(queueKey).getLogs().add(log);
         }
 
         return log;

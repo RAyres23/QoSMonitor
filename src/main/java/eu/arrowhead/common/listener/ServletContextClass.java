@@ -4,8 +4,6 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 import eu.arrowhead.core.qos.monitor.database.MongoDatabaseManager;
-import eu.arrowhead.core.qos.monitor.event.EventProducerConfig;
-import eu.arrowhead.core.qos.monitor.event.ProducerRegistry;
 import eu.arrowhead.core.qos.monitor.register.ServiceRegister;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -29,37 +27,37 @@ public class ServletContextClass implements ServletContextListener {
         LOG.log(Level.INFO, "Working Directory = {0}", System.getProperty("user.dir"));
 
         //Register QoSMonitor service in service registry
-        List<String> registries = getServiceRegistry();
-
-        for (String registry : registries) {
-            try {
-                LOG.log(Level.INFO, "Getting " + MONITOR_REGISTRY_PACKAGE + "{0} class.", registry);
-                ServiceRegister register = getRegistryClass(registry);
-                LOG.log(Level.INFO, "Registering in {0} ServiceRegistry", register.getClass().getName());
-                if (register.registerQoSMonitorService()) {
-                    REGISTERED.add(registry);
-                    LOG.log(Level.INFO, "Registry in {0} successful!", register.getClass().getName());
-                } else {
-                    LOG.log(Level.WARNING, "Registry in {0} unsuccessful!", register.getClass().getName());
-                }
-            } catch (ClassNotFoundException ex) {
-                String excMessage = "Not registered in registry " + registry + ". "
-                        + "Registry class " + registry + " not found. Make "
-                        + "sure you have the right registry class for your "
-                        + "situation and that it's available in this version "
-                        + "and/or not misspelled.";
-                LOG.log(Level.SEVERE, excMessage);
-//                throw new RuntimeException(excMessage);
-            } catch (InstantiationException | IllegalAccessException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage());
-            }
-        }
+//        List<String> registries = getServiceRegistry();
+//
+//        for (String registry : registries) {
+//            try {
+//                LOG.log(Level.INFO, "Getting " + MONITOR_REGISTRY_PACKAGE + "{0} class.", registry);
+//                ServiceRegister register = getRegistryClass(registry);
+//                LOG.log(Level.INFO, "Registering in {0} ServiceRegistry", register.getClass().getName());
+//                if (register.registerQoSMonitorService()) {
+//                    REGISTERED.add(registry);
+//                    LOG.log(Level.INFO, "Registry in {0} successful!", register.getClass().getName());
+//                } else {
+//                    LOG.log(Level.WARNING, "Registry in {0} unsuccessful!", register.getClass().getName());
+//                }
+//            } catch (ClassNotFoundException ex) {
+//                String excMessage = "Not registered in registry " + registry + ". "
+//                        + "Registry class " + registry + " not found. Make "
+//                        + "sure you have the right registry class for your "
+//                        + "situation and that it's available in this version "
+//                        + "and/or not misspelled.";
+//                LOG.log(Level.SEVERE, excMessage);
+////                throw new RuntimeException(excMessage);
+//            } catch (InstantiationException | IllegalAccessException ex) {
+//                LOG.log(Level.SEVERE, ex.getMessage());
+//            }
+//        }
 //
 //        // [PT] Starting MongoDB, loading EventProducer configurations and registering in EventHandler
 //        EventProducerConfig.loadConfigurations();
 //        new ProducerRegistry().registerAsProducer();
 
-        MongoDatabaseManager.startManager();
+        MongoDatabaseManager.getInstance().startManager();
 
         LOG.info("Setup completed.");
 
@@ -70,7 +68,7 @@ public class ServletContextClass implements ServletContextListener {
         System.out.println("[QoSMonitor] Servlet destroyed.");
 
         // [PT] Stoping MongoDB
-        MongoDatabaseManager.stopManager();
+        MongoDatabaseManager.getInstance().stopManager();
 
         //TODO unregister from EventHandler
         //Unregister from ServiceRegistry

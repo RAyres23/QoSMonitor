@@ -92,7 +92,7 @@ public class QoSMonitorService {
         EventProducerConfig.loadConfigurations();
         new ProducerRegistry().registerAsProducer();
 
-        MongoDatabaseManager.startManager();
+        MongoDatabaseManager.getInstance().startManager();
     }
 
     /**
