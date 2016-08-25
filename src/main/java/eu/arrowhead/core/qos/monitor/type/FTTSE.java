@@ -8,9 +8,9 @@ import eu.arrowhead.core.qos.monitor.database.MonitorLog;
 import eu.arrowhead.core.qos.monitor.database.MonitorRule;
 import eu.arrowhead.core.qos.monitor.event.SLAVerificationParameter;
 import eu.arrowhead.core.qos.monitor.event.SLAVerificationResponse;
-import eu.arrowhead.core.qos.monitor.event.model.Event;
 import eu.arrowhead.core.qos.monitor.type.presentation.FTTSE_Presentation;
 import eu.arrowhead.core.qos.monitor.type.presentation.model.PresentationData;
+import eu.arrowhead.core.qos.monitor.type.presentation.model.PresentationEvent;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -62,7 +62,7 @@ public class FTTSE implements Monitor {
             DATA.put(queueKey, data);
             data.getLogs().add(log);
             Runnable r = () -> {
-                new FTTSE_Presentation(queueKey, data);
+                new FTTSE_Presentation(queueKey, data).build();
             };
             new Thread(r).start();
         } else {
@@ -73,8 +73,8 @@ public class FTTSE implements Monitor {
     }
 
     @Override
-    public void addEventToPresentationQueue(Event event) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void addEventToPresentationQueue(String queueKey, PresentationEvent event) {
+        DATA.get(queueKey).getEvents().add(event);
     }
 
     @Override

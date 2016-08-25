@@ -12,6 +12,7 @@ import eu.arrowhead.core.qos.monitor.database.MonitorRule;
 import eu.arrowhead.core.qos.monitor.event.model.Event;
 import eu.arrowhead.core.qos.monitor.event.model.Metadata;
 import eu.arrowhead.core.qos.monitor.type.Monitor;
+import eu.arrowhead.core.qos.monitor.type.presentation.model.PresentationEvent;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -45,8 +46,13 @@ public class SLAVerification implements Runnable {
         }
 
         if (SLAresponse.isSLABroken()) {
-            EventProducer eventProducer = new EventProducer(createEvent(SLAresponse.getParameters()));
-            eventProducer.publishEvent();
+//            EventProducer eventProducer = new EventProducer(createEvent(SLAresponse.getParameters()));
+//            eventProducer.publishEvent();
+
+            String queueKey = rule.getProviderSystemGroup() + rule.getProviderSystemName() + rule.getConsumerSystemGroup() + rule.getConsumerSystemName();
+//            monitor.addEventToPresentationQueue(queueKey, eventProducer.getEvent());
+            //FIXME
+            monitor.addEventToPresentationQueue(queueKey, new PresentationEvent(createEvent(SLAresponse.getParameters())));
 
             //Only for test purposes
             for (SLAVerificationParameter parameter : SLAresponse.getParameters()) {

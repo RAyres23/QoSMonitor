@@ -5,7 +5,7 @@ import eu.arrowhead.common.model.messages.QoSMonitorLog;
 import eu.arrowhead.core.qos.monitor.database.MonitorLog;
 import eu.arrowhead.core.qos.monitor.database.MonitorRule;
 import eu.arrowhead.core.qos.monitor.event.SLAVerificationResponse;
-import eu.arrowhead.core.qos.monitor.event.model.Event;
+import eu.arrowhead.core.qos.monitor.type.presentation.model.PresentationEvent;
 
 public interface Monitor {
 
@@ -28,9 +28,10 @@ public interface Monitor {
     /**
      * Adds a new Event to the queue of events.
      *
+     * @param queueKey source of the Event
      * @param event new Event to add
      */
-    public void addEventToPresentationQueue(Event event);
+    public void addEventToPresentationQueue(String queueKey, PresentationEvent event);
 
     /**
      * Verifies if the SLA is being respected regarding the existing rule and

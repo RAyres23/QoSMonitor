@@ -65,7 +65,7 @@ public class EventProducer {
         return target;
     }
 
-    public Event getEventType() {
+    public Event getEvent() {
         return event;
     }
 

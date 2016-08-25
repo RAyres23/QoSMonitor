@@ -19,7 +19,7 @@ public class SceneNode {
 
     private XYChart chart;
     private NumberAxis xAxis;
-    private XYChart.Series series;
+    private final XYChart.Series series;
     private int xSeriesData;
 
     public SceneNode(Presentation.SceneType type, String title) {
@@ -54,6 +54,7 @@ public class SceneNode {
 
         chart.setAnimated(false);
         chart.setId(title);
+        chart.setMinWidth(720);
 
         // -- Chart Series
         series = new XYChart.Series();

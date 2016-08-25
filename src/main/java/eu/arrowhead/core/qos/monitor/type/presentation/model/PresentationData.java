@@ -6,7 +6,6 @@
 package eu.arrowhead.core.qos.monitor.type.presentation.model;
 
 import eu.arrowhead.core.qos.monitor.database.MonitorLog;
-import eu.arrowhead.core.qos.monitor.event.model.Event;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
@@ -17,7 +16,7 @@ import java.util.Queue;
 public class PresentationData {
 
     private final Queue<MonitorLog> logs;
-    private final Queue<Event> events;
+    private final Queue<PresentationEvent> events;
 
     public PresentationData() {
         logs = new ArrayDeque<>();
@@ -28,7 +27,7 @@ public class PresentationData {
         return logs;
     }
 
-    public Queue<Event> getEvents() {
+    public Queue<PresentationEvent> getEvents() {
         return events;
     }
 

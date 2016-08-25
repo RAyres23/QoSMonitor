@@ -6,15 +6,9 @@
 package eu.arrowhead.core.qos.monitor.type.presentation;
 
 import eu.arrowhead.core.qos.monitor.type.presentation.model.PresentationData;
-import java.awt.Dimension;
-import javafx.application.Platform;
-import javafx.embed.swing.JFXPanel;
-import javafx.scene.Scene;
-import javafx.scene.chart.AreaChart;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
-import javafx.scene.chart.XYChart.Series;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import javafx.animation.AnimationTimer;
 import javax.swing.JFrame;
 
 /**
@@ -23,11 +17,10 @@ import javax.swing.JFrame;
  */
 public abstract class Presentation extends JFrame {
 
-    protected final int MAX_DATA_POINTS = 50;
     protected final String queueKey;
     protected final PresentationData data;
 
-    protected enum SceneType {
+    public enum SceneType {
         AREACHART, LINECHART;
     }
 
@@ -36,100 +29,28 @@ public abstract class Presentation extends JFrame {
         this.queueKey = queueKey;
         this.data = data;
 
-        final JFXPanel contentPane = new JFXPanel();
-        contentPane.setPreferredSize(new Dimension(960, 540));
-
-        // building the scene graph must be done on the javafx thread
-        Platform.runLater(() -> {
-            contentPane.setScene(init());
-            prepareTimeline();
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                closeWindow();
+            }
         });
-
-        this.setContentPane(contentPane);
-
-        pack();
-        setVisible(true);
-        setResizable(true);
-
-        setLocationRelativeTo(null);
     }
 
-    protected abstract Scene init();
+    public abstract void build();
 
     // -- Timeline gets called in the JavaFX Main thread
-    protected abstract void prepareTimeline();
+    protected void prepareTimeline() {
+        // Every frame to take any data from queue and add to chart
+        new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                addDataToSeries();
+            }
+        }.start();
+    }
 
     protected abstract void addDataToSeries();
 
     protected abstract void closeWindow();
-
-    protected final class SceneNode {
-
-        private final XYChart chart;
-        private final NumberAxis xAxis;
-        private final Series series;
-        private int xSeriesData;
-
-        public SceneNode(SceneType type, String title) {
-
-            xAxis = new NumberAxis();
-            xAxis.setForceZeroInRange(false);
-            xAxis.setAutoRanging(false);
-
-            NumberAxis yAxis = new NumberAxis();
-            yAxis.setAutoRanging(true);
-
-            switch (type) {
-                case AREACHART:
-                    chart = new AreaChart<Number, Number>(xAxis, yAxis) {
-                        // Override to remove symbols on each data point
-                        @Override
-                        protected void dataItemAdded(Series<Number, Number> series, int itemIndex, Data<Number, Number> item) {
-                        }
-                    };
-                    break;
-                case LINECHART:
-                    chart = new LineChart<Number, Number>(xAxis, yAxis) {
-                        // Override to remove symbols on each data point
-                        @Override
-                        protected void dataItemAdded(Series<Number, Number> series, int itemIndex, Data<Number, Number> item) {
-                        }
-                    };
-                    break;
-                default:
-                    throw new IllegalArgumentException("Chart type unavailable");
-            }
-
-            chart.setAnimated(false);
-            chart.setId(title);
-
-            // -- Chart Series
-            series = new Series();
-            series.setName(title);
-            chart.getData().add(series);
-
-            xSeriesData = 0;
-        }
-
-        public XYChart getChart() {
-            return chart;
-        }
-
-        public NumberAxis getXAxis() {
-            return xAxis;
-        }
-
-        public Series getSeries() {
-            return series;
-        }
-
-        public int getXSeriesData() {
-            return xSeriesData;
-        }
-
-        public int getXSeriesDataAndIncrement() {
-            return xSeriesData++;
-        }
-
-    }
 }
