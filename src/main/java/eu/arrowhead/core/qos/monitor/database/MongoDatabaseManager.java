@@ -18,6 +18,8 @@ import eu.arrowhead.core.qos.monitor.database.provider.MonitorRuleCodecProvider;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,7 +34,7 @@ import org.bson.conversions.Bson;
  *
  * @author Renato Ayres
  */
-public class MongoDatabaseManager {
+public final class MongoDatabaseManager {
 
     private static MongoDatabaseManager instance;
     private MongoClient client;
@@ -325,6 +327,42 @@ public class MongoDatabaseManager {
     public MonitorRule findRule(ArrowheadSystem provider, ArrowheadSystem consumer) {
         return findRule(provider.getSystemGroup(), provider.getSystemName(),
                 consumer.getSystemGroup(), consumer.getSystemName());
+    }
+
+    /**
+     * Finds a rule with the given parameters.
+     *
+     * @param parameter at least one parameter
+     * @param parameters
+     * @return the wanted rule. If no rule matched the given parameters, then
+     * null is returned
+     */
+    public List<MonitorRule> findRuleByParameters(FilterParameter parameter, FilterParameter... parameters) {
+
+        List<MonitorRule> monitorRules = new ArrayList<>();
+
+        Bson filter = Filters.and(
+                Filters.exists(parameter.getName()),
+                Filters.eq(parameter.getName(), parameter.getValue())
+        );
+
+        for (FilterParameter param : parameters) {
+            filter = Filters.and(
+                    filter,
+                    Filters.and(
+                            Filters.exists(param.getName()),
+                            Filters.eq(param.getName(), param.getValue())
+                    )
+            );
+        }
+
+        MongoCursor<MonitorRule> temps = getRuleCollection().find(Filters.exists("stream_id"), MonitorRule.class).iterator();
+
+        while (temps.hasNext()) {
+            monitorRules.add(temps.next());
+        }
+
+        return monitorRules;
     }
 
     /**

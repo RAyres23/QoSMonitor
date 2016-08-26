@@ -51,10 +51,10 @@ public class MonitorLogCodec implements CollectibleCodec<MonitorLog> {
 
         writer.writeDateTime(MongoDBNames.TIMESTAMP, log.getTimestamp());
 
-        Set<Map.Entry<String, Double>> params = log.getParameters().entrySet();
+        Set<Map.Entry<String, String>> params = log.getParameters().entrySet();
 
-        for (Map.Entry<String, Double> param : params) {
-            writer.writeDouble(param.getKey(), param.getValue());
+        for (Map.Entry<String, String> param : params) {
+            writer.writeString(param.getKey(), param.getValue());
         }
 
         writer.writeEndDocument();
@@ -75,11 +75,11 @@ public class MonitorLogCodec implements CollectibleCodec<MonitorLog> {
 
         Long timestamp = reader.readDateTime(MongoDBNames.TIMESTAMP);
 
-        Map<String, Double> parameters = new HashMap<>();
+        Map<String, String> parameters = new HashMap<>();
 
         while (reader.readBsonType() != BsonType.END_OF_DOCUMENT) {
             String fieldName = reader.readName();
-            Double value = reader.readDouble();
+            String value = reader.readString();
             parameters.put(fieldName, value);
         }
 

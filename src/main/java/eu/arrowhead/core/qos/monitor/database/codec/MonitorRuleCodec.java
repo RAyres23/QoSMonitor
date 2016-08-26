@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
 import org.bson.BsonObjectId;
 import org.bson.BsonReader;
 import org.bson.BsonType;
@@ -59,10 +58,10 @@ public class MonitorRuleCodec implements CollectibleCodec<MonitorRule> {
 
         writer.writeBoolean(MongoDBNames.SOFTREALTIME, rule.isSoftRealTime());
 
-        Set<Entry<String, Double>> params = rule.getParameters().entrySet();
+        Set<Entry<String, String>> params = rule.getParameters().entrySet();
 
-        for (Entry<String, Double> param : params) {
-            writer.writeDouble(param.getKey(), param.getValue());
+        for (Entry<String, String> param : params) {
+            writer.writeString(param.getKey(), param.getValue());
         }
 
         writer.writeEndDocument();
@@ -89,11 +88,11 @@ public class MonitorRuleCodec implements CollectibleCodec<MonitorRule> {
 
         boolean softRealTime = reader.readBoolean(MongoDBNames.SOFTREALTIME);
 
-        Map<String, Double> parameters = new HashMap<>();
+        Map<String, String> parameters = new HashMap<>();
 
         while (reader.readBsonType() != BsonType.END_OF_DOCUMENT) {
             String fieldName = reader.readName();
-            Double value = reader.readDouble();
+            String value = reader.readString();
             parameters.put(fieldName, value);
         }
 

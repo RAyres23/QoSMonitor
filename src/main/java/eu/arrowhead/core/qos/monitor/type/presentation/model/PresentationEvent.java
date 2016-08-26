@@ -35,6 +35,13 @@ public class PresentationEvent {
      */
     private final SimpleStringProperty payload;
 
+    public PresentationEvent(String from, String type, int severity, String payload) {
+        this.from = new SimpleStringProperty(from);
+        this.type = new SimpleStringProperty(type);
+        this.severity = new SimpleIntegerProperty(severity);
+        this.payload = new SimpleStringProperty(payload);
+    }
+
     public PresentationEvent(Event event) {
         this.from = new SimpleStringProperty(event.getFrom());
         this.type = new SimpleStringProperty(event.getType());

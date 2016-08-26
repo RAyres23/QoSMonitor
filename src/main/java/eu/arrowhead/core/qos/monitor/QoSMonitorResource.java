@@ -1,20 +1,19 @@
 package eu.arrowhead.core.qos.monitor;
 
+import eu.arrowhead.common.model.messages.QoSMonitorAddRule;
+import eu.arrowhead.common.model.messages.QoSMonitorLog;
+import eu.arrowhead.common.model.messages.QoSMonitorRemoveRule;
+import eu.arrowhead.common.model.messages.ServiceError;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import eu.arrowhead.common.model.messages.QoSMonitorAddRule;
-import eu.arrowhead.common.model.messages.QoSMonitorLog;
-import eu.arrowhead.common.model.messages.QoSMonitorRemoveRule;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-//import org.apache.log4j.Logger;
 
 /**
  * Root resource (exposed at "monitor" path).
@@ -73,7 +72,7 @@ public class QoSMonitorResource {
      * monitor rule
      */
     @POST
-    @Path("/qosrule")
+    @Path("/rule")
     public Response addMonitorRule(QoSMonitorAddRule message) {
 
         try {
@@ -100,7 +99,7 @@ public class QoSMonitorResource {
      * monitor rule
      */
     @DELETE
-    @Path("/qosrule")
+    @Path("/rule")
     public Response deleteMonitorRule(QoSMonitorRemoveRule message) {
         monitor.removeMonitorRule(message);
         return Response.ok("Removed!").build();
@@ -116,7 +115,7 @@ public class QoSMonitorResource {
      * monitor log
      */
     @POST
-    @Path("/qoslog")
+    @Path("/log")
     public Response addMonitorLog(QoSMonitorLog message) {
         try {
             monitor.addMonitorLog(message);
@@ -133,7 +132,16 @@ public class QoSMonitorResource {
 
     @POST
     @Path("/event")
-    public Response sendEvent() {
+    public Response sendEvent(ServiceError error) {
+        try {
+            monitor.addServiceError(error);
+        } catch (InstantiationException | IllegalAccessException ex) {
+            // FIXME
+            LOG.log(Level.WARNING, ex.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(ex.getMessage())
+                    .build();
+        }
         return Response.ok("Sent").build();
     }
 }

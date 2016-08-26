@@ -1,7 +1,6 @@
 package eu.arrowhead.core.qos.monitor.database;
 
 import java.util.Map;
-
 import org.bson.types.ObjectId;
 
 /**
@@ -17,7 +16,7 @@ public class MonitorRule {
     private String providerSystemGroup;
     private String consumerSystemName;
     private String consumerSystemGroup;
-    private Map<String, Double> parameters;
+    private Map<String, String> parameters;
     private boolean softRealTime;
 
     /**
@@ -43,7 +42,7 @@ public class MonitorRule {
     public MonitorRule(String type,
             String providerSystemName, String providerSystemGroup,
             String consumerSystemName, String consumerSystemGroup,
-            Map<String, Double> parameters, boolean softRealTime) {
+            Map<String, String> parameters, boolean softRealTime) {
         this(new ObjectId(), type,
                 providerSystemName, providerSystemGroup,
                 consumerSystemName, consumerSystemGroup,
@@ -67,7 +66,7 @@ public class MonitorRule {
     public MonitorRule(final ObjectId id, String type,
             String providerSystemName, String providerSystemGroup,
             String consumerSystemName, String consumerSystemGroup,
-            Map<String, Double> parameters, boolean softRealTime) {
+            Map<String, String> parameters, boolean softRealTime) {
         this.id = id;
         this.type = type;
         this.providerSystemName = providerSystemName;
@@ -182,7 +181,7 @@ public class MonitorRule {
      *
      * @return the monitor parameters
      */
-    public Map<String, Double> getParameters() {
+    public Map<String, String> getParameters() {
         return parameters;
     }
 
@@ -191,7 +190,7 @@ public class MonitorRule {
      *
      * @param parameters the monitor parameters
      */
-    public void setParameters(Map<String, Double> parameters) {
+    public void setParameters(Map<String, String> parameters) {
         this.parameters = parameters;
     }
 

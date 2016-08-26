@@ -6,12 +6,14 @@ import eu.arrowhead.common.exception.NoMonitorParametersException;
 import eu.arrowhead.common.model.messages.QoSMonitorAddRule;
 import eu.arrowhead.common.model.messages.QoSMonitorLog;
 import eu.arrowhead.common.model.messages.QoSMonitorRemoveRule;
+import eu.arrowhead.common.model.messages.ServiceError;
 import eu.arrowhead.core.qos.monitor.database.MongoDatabaseManager;
 import eu.arrowhead.core.qos.monitor.database.MonitorLog;
 import eu.arrowhead.core.qos.monitor.database.MonitorRule;
 import eu.arrowhead.core.qos.monitor.event.EventProducerConfig;
 import eu.arrowhead.core.qos.monitor.event.ProducerRegistry;
 import eu.arrowhead.core.qos.monitor.event.SLAVerification;
+import eu.arrowhead.core.qos.monitor.event.model.Event;
 import eu.arrowhead.core.qos.monitor.register.ServiceRegister;
 import eu.arrowhead.core.qos.monitor.type.Monitor;
 import java.io.FileNotFoundException;
@@ -184,6 +186,38 @@ public class QoSMonitorService {
 
         SLAVerification verification = new SLAVerification(monitor, rule, log);
         EXEC.execute(verification);
+
+    }
+
+    /**
+     * Intermediates between message and monitor type.
+     *
+     * @param message ServiceError message
+     * @throws java.lang.InstantiationException
+     * @throws java.lang.IllegalAccessException
+     */
+    public void addServiceError(ServiceError message) throws InstantiationException, IllegalAccessException {
+
+        if (message.getParameters().isEmpty()) {
+            throw new NoMonitorParametersException("No parameters found in service error message!");
+        }
+
+        Monitor monitor = null;
+        try {
+            monitor = getMonitorClass(message.getType());
+        } catch (ClassNotFoundException ex) {
+            String excMessage = "Type " + message.getType() + " not found. Make "
+                    + "sure you have the right monitor type for your "
+                    + "situation and that it's available in this version "
+                    + "and/or not misspelled.";
+            LOG.log(Level.SEVERE, excMessage);
+            throw new InvalidMonitorTypeException(excMessage);
+        }
+
+        Event event = monitor.addServiceError(message);
+        
+//        EventProducer producer = new EventProducer(event);
+//        producer.publishEvent();
 
     }
 

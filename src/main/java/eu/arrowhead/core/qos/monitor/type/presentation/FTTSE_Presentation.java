@@ -180,7 +180,7 @@ public class FTTSE_Presentation extends Presentation {
             MonitorLog log = data.getLogs().remove();
 
             for (NodeKey key : keys) {
-                Double value = log.getParameters().get(key.name);
+                Double value = Double.valueOf(log.getParameters().get(key.name));
                 if (value == null) {
                     continue;
                 }

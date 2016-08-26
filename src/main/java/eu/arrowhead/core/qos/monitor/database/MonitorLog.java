@@ -17,7 +17,7 @@ public class MonitorLog {
 
     private final ObjectId id;
     private String type;
-    private Map<String, Double> parameters;
+    private Map<String, String> parameters;
     private Long timestamp;
 
     /**
@@ -35,7 +35,7 @@ public class MonitorLog {
      * @param timestamp the monitor timestamp
      * @param parameters the monitor parameters
      */
-    public MonitorLog(String type, Long timestamp, Map<String, Double> parameters) {
+    public MonitorLog(String type, Long timestamp, Map<String, String> parameters) {
         this(new ObjectId(), type, timestamp, parameters);
     }
 
@@ -48,7 +48,7 @@ public class MonitorLog {
      * @param timestamp the monitor timestamp
      * @param parameters the monitor parameters
      */
-    public MonitorLog(final ObjectId id, String type, Long timestamp, Map<String, Double> parameters) {
+    public MonitorLog(final ObjectId id, String type, Long timestamp, Map<String, String> parameters) {
         this.id = id;
         this.type = type;
         this.timestamp = timestamp;
@@ -105,7 +105,7 @@ public class MonitorLog {
      *
      * @return the monitor parameters
      */
-    public Map<String, Double> getParameters() {
+    public Map<String, String> getParameters() {
         return parameters;
     }
 
@@ -114,7 +114,7 @@ public class MonitorLog {
      *
      * @param parameters the monitor parameters
      */
-    public void setParameters(Map<String, Double> parameters) {
+    public void setParameters(Map<String, String> parameters) {
         this.parameters = parameters;
     }
 

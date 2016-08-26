@@ -6,7 +6,6 @@
 package eu.arrowhead.core.qos.monitor.event;
 
 import eu.arrowhead.core.qos.monitor.event.model.Event;
-import eu.arrowhead.core.qos.monitor.event.model.Producer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ws.rs.client.Client;

@@ -1,13 +1,19 @@
 package eu.arrowhead.core.qos.monitor.type;
 
 import eu.arrowhead.common.exception.InvalidParameterException;
+import eu.arrowhead.common.exception.MissingParameterException;
 import eu.arrowhead.common.model.ArrowheadSystem;
 import eu.arrowhead.common.model.messages.QoSMonitorAddRule;
 import eu.arrowhead.common.model.messages.QoSMonitorLog;
+import eu.arrowhead.common.model.messages.ServiceError;
+import eu.arrowhead.core.qos.monitor.database.FilterParameter;
+import eu.arrowhead.core.qos.monitor.database.MongoDatabaseManager;
 import eu.arrowhead.core.qos.monitor.database.MonitorLog;
 import eu.arrowhead.core.qos.monitor.database.MonitorRule;
+import eu.arrowhead.core.qos.monitor.event.EventUtil;
 import eu.arrowhead.core.qos.monitor.event.SLAVerificationParameter;
 import eu.arrowhead.core.qos.monitor.event.SLAVerificationResponse;
+import eu.arrowhead.core.qos.monitor.event.model.Event;
 import eu.arrowhead.core.qos.monitor.type.presentation.FTTSE_Presentation;
 import eu.arrowhead.core.qos.monitor.type.presentation.model.PresentationData;
 import eu.arrowhead.core.qos.monitor.type.presentation.model.PresentationEvent;
@@ -23,9 +29,20 @@ public class FTTSE implements Monitor {
 //    private static final Map<String, PresentationData> DATA = new ConcurrentHashMap();
     private static final Map<String, PresentationData> DATA = new HashMap();
 
-    private enum Key {
+    private enum Monitor {
 
         BANDWIDTH("bandwidth"), DELAY("delay");
+
+        private final String name;
+
+        private Monitor(String name) {
+            this.name = name;
+        }
+    }
+
+    private enum Key {
+
+        STREAMID("stream_id");
 
         private final String name;
 
@@ -46,10 +63,29 @@ public class FTTSE implements Monitor {
         ArrowheadSystem provider = message.getProvider();
         ArrowheadSystem consumer = message.getConsumer();
 
+        Map<String, String> parameters = filterParameters(message.getParameters());
+
+        String name = Key.STREAMID.name;
+        String streamID = message.getParameters().get(name);
+
+        if (streamID == null) {
+            throw new MissingParameterException("Missing " + name + " in FTTSE rule!");
+        }
+
+        try {
+            Double.valueOf(message.getParameters().get(name));
+        } catch (NumberFormatException ex) {
+            throw new InvalidParameterException("Value of parameter "
+                    + name + " is not parsable. Please make sure "
+                    + "that no invalid characters are present");
+        }
+
+        parameters.put(name, streamID);
+
         return new MonitorRule(message.getType(),
                 provider.getSystemName(), provider.getSystemGroup(),
                 consumer.getSystemName(), consumer.getSystemGroup(),
-                filterParameters(message.getParameters()), message.isSoftRealTime());
+                parameters, message.isSoftRealTime());
     }
 
     @Override
@@ -78,6 +114,32 @@ public class FTTSE implements Monitor {
     }
 
     @Override
+    public Event addServiceError(ServiceError error) {
+
+        String stream = error.getParameters().get(Key.STREAMID.name);
+        if (stream == null) {
+            throw new MissingParameterException("Missing " + stream + " in FTTSE service error!");
+        }
+
+        List<MonitorRule> rules = MongoDatabaseManager.getInstance().findRuleByParameters(new FilterParameter(Key.STREAMID.name, stream));
+
+        rules.stream().map((rule) -> (rule.getProviderSystemGroup() + rule.getProviderSystemName() + rule.getConsumerSystemGroup() + rule.getConsumerSystemName())).forEach((queueKey) -> {
+            if (!(DATA.containsKey(queueKey))) {
+                PresentationData data = new PresentationData();
+                DATA.put(queueKey, data);
+                data.getEvents().add(EventUtil.createPresentationEvent(error));
+                Runnable r = () -> {
+                    new FTTSE_Presentation(queueKey, data).build();
+                };
+                new Thread(r).start();
+            } else {
+                DATA.get(queueKey).getEvents().add(EventUtil.createPresentationEvent(error));
+            }
+        });
+        return EventUtil.createEvent(error);
+    }
+
+    @Override
     public SLAVerificationResponse verifyQoS(MonitorRule rule, MonitorLog... logs) {
         int nLogs = logs.length;
         if (nLogs == 0) {
@@ -94,16 +156,18 @@ public class FTTSE implements Monitor {
         return doHardRealTime(rule.getParameters(), logs[0].getParameters());
     }
 
-    private Map<String, Double> filterParameters(Map<String, String> params) {
-        Map<String, Double> parameters = new HashMap<>();
+    private Map<String, String> filterParameters(Map<String, String> params) {
+        Map<String, String> parameters = new HashMap<>();
 
-        Key[] keys = Key.values();
+        Monitor[] keys = Monitor.values();
 
-        for (Key key : keys) {
+        for (Monitor key : keys) {
             String name = key.name;
-            if (params.containsKey(name)) {
+            String param = params.get(name);
+            if (param != null) {
                 try {
-                    parameters.put(name, Double.valueOf(params.get(name)));
+                    Double.valueOf(param);
+                    parameters.put(name, param);
                 } catch (NumberFormatException ex) {
                     throw new InvalidParameterException("Value of parameter "
                             + name + " is not parsable. Please make sure "
@@ -114,24 +178,24 @@ public class FTTSE implements Monitor {
         return parameters;
     }
 
-    private SLAVerificationResponse doHardRealTime(Map<String, Double> rule, Map<String, Double> log) {
+    private SLAVerificationResponse doHardRealTime(Map<String, String> rule, Map<String, String> log) {
         SLAVerificationResponse response = new SLAVerificationResponse();
 
         System.out.println("On the SLAVerificationResponse " + log);
 
-        Key[] keys = Key.values();
+        Monitor[] keys = Monitor.values();
 
-        for (Key key : keys) {
-            Double requestedValue = rule.get(key.name);
-            Double loggedValue = log.get(key.name);
+        for (Monitor key : keys) {
+            Double requestedValue = Double.valueOf(rule.get(key.name));
+            Double loggedValue = Double.valueOf(log.get(key.name));
             switch (key) {
                 case BANDWIDTH:
-                    if (loggedValue < requestedValue) {
+                    if (loggedValue > requestedValue) {
                         response.addParameter(new SLAVerificationParameter(key.name, requestedValue, loggedValue));
                     }
                     break;
                 case DELAY:
-                    if (loggedValue > requestedValue) {
+                    if (loggedValue > requestedValue + 1) {
                         response.addParameter(new SLAVerificationParameter(key.name, requestedValue, loggedValue));
                     }
                     break;
@@ -143,7 +207,7 @@ public class FTTSE implements Monitor {
         return response;
     }
 
-    private SLAVerificationResponse doSoftRealTime(Map<String, Double> rule, List<MonitorLog> logs) {
+    private SLAVerificationResponse doSoftRealTime(Map<String, String> rule, List<MonitorLog> logs) {
         SLAVerificationResponse response = new SLAVerificationResponse();
 
         Double bandwidthMean = 0.0;
@@ -152,22 +216,22 @@ public class FTTSE implements Monitor {
         Double nLogs = Double.valueOf(logs.size());
 
         for (MonitorLog log : logs) {
-            Map<String, Double> temp = log.getParameters();
-            bandwidthMean += temp.get(Key.BANDWIDTH.name);
-            delayMean += temp.get(Key.DELAY.name);
+            Map<String, String> temp = log.getParameters();
+            bandwidthMean += Double.valueOf(temp.get(Monitor.BANDWIDTH.name));
+            delayMean += Double.valueOf(temp.get(Monitor.DELAY.name));
         }
 
         bandwidthMean /= nLogs;
         responseTimeMean /= nLogs;
         delayMean /= nLogs;
 
-        Key[] keys = Key.values();
+        Monitor[] keys = Monitor.values();
 
-        for (Key key : keys) {
-            Double requestedValue = rule.get(key.name);
+        for (Monitor key : keys) {
+            Double requestedValue = Double.valueOf(rule.get(key.name));
             switch (key) {
                 case BANDWIDTH:
-                    if (bandwidthMean < requestedValue) {
+                    if (bandwidthMean > requestedValue) {
                         response.addParameter(new SLAVerificationParameter(key.name, requestedValue, bandwidthMean));
                     }
                     break;

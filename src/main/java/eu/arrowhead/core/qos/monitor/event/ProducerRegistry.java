@@ -61,6 +61,8 @@ public class ProducerRegistry {
         producer.setUid(getProps().getProperty("producer.uid"));
         producer.setType(getProps().getProperty("producer.type"));
         producer.setName(getProps().getProperty("producer.name"));
+        //FIXME
+        EventProducer.setProducer(producer.getUid());
         return producer;
     }
 

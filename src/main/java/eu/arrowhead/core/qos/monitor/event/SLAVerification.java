@@ -66,11 +66,11 @@ public class SLAVerification implements Runnable {
     }
 
     /**
-     * Creates an EventType instance with the information from the given
+     * Creates an Event instance with the information from the given
      * parameter.
      *
-     * @param parameters instance containing information to create an EventType
-     * @return the EventType instance
+     * @param parameters instance containing information to create an Event
+     * @return the Event instance
      */
     private Event createEvent(List<SLAVerificationParameter> parameters) {
         Event event = new Event();
