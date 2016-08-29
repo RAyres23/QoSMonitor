@@ -186,8 +186,19 @@ public class FTTSE implements Monitor {
         Monitor[] keys = Monitor.values();
 
         for (Monitor key : keys) {
-            Double requestedValue = Double.valueOf(rule.get(key.name));
-            Double loggedValue = Double.valueOf(log.get(key.name));
+            //FIXME check if value is in the map. test
+            String tempRequested = rule.get(key.name);
+            if (tempRequested == null) {
+                continue;
+            }
+            Double requestedValue = Double.valueOf(tempRequested);
+
+            String tempLogged = log.get(key.name);
+            if (tempLogged == null) {
+                continue;
+            }
+            Double loggedValue = Double.valueOf(tempLogged);
+
             switch (key) {
                 case BANDWIDTH:
                     if (loggedValue > requestedValue) {

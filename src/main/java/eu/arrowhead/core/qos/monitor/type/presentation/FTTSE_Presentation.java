@@ -45,6 +45,7 @@ import javax.swing.ScrollPaneConstants;
 public class FTTSE_Presentation extends Presentation {
 
     private final JFXPanel contentPane;
+    private final HBox boxCharts;
     private Map<NodeKey, SceneNode> nodes = new HashMap<>();
     private static final int MAX_DATA_POINTS = 50;
     private static final int MAX_TABLE_POINTS = 30;
@@ -52,12 +53,14 @@ public class FTTSE_Presentation extends Presentation {
 
     private enum NodeKey {
 
-        BANDWIDTH("bandwidth"), DELAY("delay");
+        BANDWIDTH("bandwidth", "Mbps"), DELAY("delay", "ms");
 
         private final String name;
+        private final String unit;
 
-        private NodeKey(String name) {
+        private NodeKey(String name, String unit) {
             this.name = name;
+            this.unit = unit;
         }
     }
 
@@ -66,6 +69,7 @@ public class FTTSE_Presentation extends Presentation {
         nodes = new HashMap<>();
         contentPane = new JFXPanel();
         events = new ObservableListWrapper(new ArrayList());
+        boxCharts = new HBox(8);
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getClassLoader().getResource("FXML\\FTTSEDocument.fxml"));
 
         // building the scene graph must be done on the javafx thread
@@ -99,6 +103,7 @@ public class FTTSE_Presentation extends Presentation {
 //        setLocationRelativeTo(null);
         pack();
 
+        setAlwaysOnTop(true);
         setVisible(true);
         requestFocus();
     }
@@ -109,21 +114,22 @@ public class FTTSE_Presentation extends Presentation {
 
         ScrollPane charts = (ScrollPane) root.getChildrenUnmodifiable().filtered((Node t) -> t.getId().equals("charts")).get(0);
 
-        HBox box = new HBox(8);
-
-        charts.setContent(box);
+        charts.setContent(boxCharts);
 //        box.prefHeightProperty().bind(charts.prefViewportHeightProperty());
 //        box.prefWidthProperty().bind(charts.prefViewportWidthProperty());
 
-        charts.prefWidthProperty().bind(box.prefWidthProperty());
+        charts.prefWidthProperty().bind(boxCharts.prefWidthProperty());
 
         NodeKey[] keys = NodeKey.values();
 
         for (NodeKey key : keys) {
-            SceneNode node = new SceneNode(SceneType.AREACHART, key.name);
+            if (data.getLogs().peek().getParameters().get(key.name) == null) {
+                continue;
+            }
+            SceneNode node = new SceneNode(SceneType.AREACHART, key.name, key.unit);
             nodes.put(key, node);
-            box.getChildren().add(node.getChart());
-            node.getChart().prefHeightProperty().bind(box.prefHeightProperty());
+            boxCharts.getChildren().add(node.getChart());
+            node.getChart().prefHeightProperty().bind(boxCharts.prefHeightProperty());
             HBox.setHgrow(node.getChart(), Priority.ALWAYS);
         }
 
@@ -136,18 +142,18 @@ public class FTTSE_Presentation extends Presentation {
 
         TableColumn source = new TableColumn("Source");
         source.setCellValueFactory(new PropertyValueFactory<PresentationEvent, String>("from"));
-        source.setMinWidth(50);
+        source.setMaxWidth(1000);
 
         TableColumn type = new TableColumn("Type");
         type.setCellValueFactory(new PropertyValueFactory<PresentationEvent, String>("type"));
-        type.setMinWidth(50);
+        type.setMaxWidth(350);
 
         TableColumn description = new TableColumn("Description");
         description.setCellValueFactory(new PropertyValueFactory<PresentationEvent, String>("payload"));
 
         TableColumn severity = new TableColumn("Severity");
         severity.setCellValueFactory(new PropertyValueFactory<PresentationEvent, Integer>("severity"));
-        severity.setMinWidth(10);
+        severity.setMaxWidth(350);
 
         table.setItems(events);
         table.getColumns().addAll(source, type, description, severity);
@@ -180,11 +186,20 @@ public class FTTSE_Presentation extends Presentation {
             MonitorLog log = data.getLogs().remove();
 
             for (NodeKey key : keys) {
-                Double value = Double.valueOf(log.getParameters().get(key.name));
-                if (value == null) {
+                //FIXME check if value is in the map. test
+                String temp = log.getParameters().get(key.name);
+                if (temp == null) {
                     continue;
                 }
+                Double value = Double.valueOf(temp);
                 SceneNode node = nodes.get(key);
+                if (node == null) {
+                    node = new SceneNode(SceneType.AREACHART, key.name, key.unit);
+                    nodes.put(key, node);
+                    boxCharts.getChildren().add(node.getChart());
+                    node.getChart().prefHeightProperty().bind(boxCharts.prefHeightProperty());
+                    HBox.setHgrow(node.getChart(), Priority.ALWAYS);
+                }
                 node.getSeries().getData().add(new Data(node.getXSeriesDataAndIncrement(), value));
                 dataChanged = true;
             }
@@ -196,6 +211,9 @@ public class FTTSE_Presentation extends Presentation {
 
         for (NodeKey key : keys) {
             SceneNode node = nodes.get(key);
+            if(node == null){
+            	continue;
+            }
             ObservableList nodeSeriesData = node.getSeries().getData();
             NumberAxis xAxis = node.getXAxis();
 

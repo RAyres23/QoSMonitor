@@ -6,6 +6,7 @@
 package eu.arrowhead.core.qos.monitor.type.presentation.model;
 
 import eu.arrowhead.core.qos.monitor.type.presentation.Presentation;
+import javafx.geometry.Side;
 import javafx.scene.chart.AreaChart;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
@@ -22,13 +23,13 @@ public class SceneNode {
     private final XYChart.Series series;
     private int xSeriesData;
 
-    public SceneNode(Presentation.SceneType type, String title) {
+    public SceneNode(Presentation.SceneType type, String name, String unit) {
 
         xAxis = new NumberAxis();
         xAxis.setForceZeroInRange(false);
         xAxis.setAutoRanging(false);
 
-        NumberAxis yAxis = new NumberAxis();
+        NumberAxis yAxis = new NumberAxis(0, Long.MAX_VALUE, 1);
         yAxis.setAutoRanging(true);
 
         switch (type) {
@@ -53,12 +54,13 @@ public class SceneNode {
         }
 
         chart.setAnimated(false);
-        chart.setId(title);
+        chart.setTitle(unit);
+        chart.setTitleSide(Side.LEFT);
         chart.setMinWidth(720);
 
         // -- Chart Series
         series = new XYChart.Series();
-        series.setName(title);
+        series.setName(name);
         chart.getData().add(series);
 
         xSeriesData = 0;

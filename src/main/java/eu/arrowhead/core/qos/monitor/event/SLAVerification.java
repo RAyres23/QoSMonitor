@@ -51,7 +51,7 @@ public class SLAVerification implements Runnable {
 
             String queueKey = rule.getProviderSystemGroup() + rule.getProviderSystemName() + rule.getConsumerSystemGroup() + rule.getConsumerSystemName();
 //            monitor.addEventToPresentationQueue(queueKey, eventProducer.getEvent());
-            //FIXME
+            //FIXME used when not using event handler. testing
             monitor.addEventToPresentationQueue(queueKey, new PresentationEvent(createEvent(SLAresponse.getParameters())));
 
             //Only for test purposes

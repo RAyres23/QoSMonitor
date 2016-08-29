@@ -39,7 +39,7 @@ public class FTTSEDocumentController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
+        // TODO no need to do anything for now
     }
 
     public ScrollPane getCharts() {
