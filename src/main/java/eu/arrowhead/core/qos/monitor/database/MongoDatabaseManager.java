@@ -32,7 +32,8 @@ import org.bson.conversions.Bson;
  *
  * This class is responsible for all the actions regarding MongoDB.
  *
- * @author Renato Ayres
+ * @author 1120681@isep.ipp.pt - Renato Ayres
+ * @see <a href="https://api.mongodb.com/java/3.2/">MongoDB JAVA API</a>
  */
 public final class MongoDatabaseManager {
 
@@ -55,6 +56,15 @@ public final class MongoDatabaseManager {
             initInstance();
         }
         return instance;
+    }
+
+    /**
+     * Initializes the Singleton instance
+     */
+    private static void initInstance() {
+        if (instance == null) {
+            instance = new MongoDatabaseManager();
+        }
     }
 
     /**
@@ -89,6 +99,9 @@ public final class MongoDatabaseManager {
 
     /**
      * Closes the MongoClient connection with MongoDB.
+     *
+     * @see
+     * <a href="https://api.mongodb.com/java/3.2/com/mongodb/MongoClient.html">MongoClient</a>
      */
     public void stopManager() {
         if (client != null) {
@@ -127,15 +140,12 @@ public final class MongoDatabaseManager {
         return props;
     }
 
-    private static void initInstance() {
-        if (instance == null) {
-            instance = new MongoDatabaseManager();
-        }
-    }
-
     /**
-     * Initializes the MongoDBClient instance. A connection string is provided
-     * in a properties file.
+     * Initializes the MongoClient instance. A connection string is provided in
+     * a properties file.
+     *
+     * @see
+     * <a href="https://api.mongodb.com/java/3.2/com/mongodb/MongoClient.html">MongoClient</a>
      */
     private void initClient() {
         MongoClientURI uri;
@@ -156,6 +166,9 @@ public final class MongoDatabaseManager {
     /**
      * Initializes the codec registries for the MonitorLog class and the
      * MonitorRule class.
+     *
+     * @see
+     * <a href="https://api.mongodb.com/java/3.2/com/mongodb/client/MongoDatabase.html">MongoClient</a>
      */
     private void initCodecRegistries() {
         initLogCodecRegistry();
@@ -164,6 +177,8 @@ public final class MongoDatabaseManager {
 
     /**
      * Initializes the CodecRegistry for the MonitorLog class.
+     *
+     * @see MonitorLogCodecProvider
      */
     private void initLogCodecRegistry() {
         logCodecRegistry = CodecRegistries.fromRegistries(MongoClient.getDefaultCodecRegistry(),
@@ -172,6 +187,8 @@ public final class MongoDatabaseManager {
 
     /**
      * Initializes the CodecRegistry for the MonitorRule class.
+     *
+     * @see MonitorRuleCodecProvider
      */
     private void initRuleCodecRegistry() {
         ruleCodecRegistry = CodecRegistries.fromRegistries(MongoClient.getDefaultCodecRegistry(),
@@ -333,7 +350,7 @@ public final class MongoDatabaseManager {
      * Finds a rule with the given parameters.
      *
      * @param parameter at least one parameter
-     * @param parameters
+     * @param parameters more parameters to filter
      * @return the wanted rule. If no rule matched the given parameters, then
      * null is returned
      */
@@ -449,13 +466,17 @@ public final class MongoDatabaseManager {
     /**
      * Checks if a rule exists in the MongoDatabase instance and deletes it. The
      * rule is identified by the system group and system name information in the
-     * given parameters. Uses the Rule collection.
+     * given parameters. Uses the Rule MongoCollection.
      *
      * @param providerSystemGroup the provider system group
      * @param providerSystemName the provider system name
      * @param consumerSystemGroup the consumer system group
      * @param consumerSystemName the consumer system name
      * @return Always returns true. May suffer some changes in the future
+     * @see
+     * <a href="https://api.mongodb.com/java/3.2/com/mongodb/client/MongoCollection.html">MongoCollection</a>
+     * @see
+     * <a href="https://api.mongodb.com/java/3.2/com/mongodb/client/MongoCollection.html">MongoCollection</a>
      */
     public boolean deleteRule(String providerSystemGroup, String providerSystemName,
             String consumerSystemGroup, String consumerSystemName) {
@@ -472,7 +493,7 @@ public final class MongoDatabaseManager {
     }
 
     /**
-     * Inserts a new Log into a MongoDB collection defined by the given
+     * Inserts a new log into the MongoCollection defined by the given
      * parameters.
      *
      * @param log the log to insert
@@ -483,6 +504,8 @@ public final class MongoDatabaseManager {
      * @throws MongoWriteConcernException if the write failed due being unable
      * to fulfil the write concern
      * @throws MongoException if the write failed due some other failure
+     * @see
+     * <a href="https://api.mongodb.com/java/3.2/com/mongodb/client/MongoCollection.html">MongoCollection</a>
      */
     public void insertLog(MonitorLog log, ArrowheadSystem provider, ArrowheadSystem consumer)
             throws MongoWriteException, MongoWriteConcernException, MongoException {
@@ -495,10 +518,12 @@ public final class MongoDatabaseManager {
     }
 
     /**
-     * Gets the last N logs, as defined by the rule
+     * Gets the last n logs, filtered by the rule.
      *
-     * @param rule
-     * @return
+     * @param rule rule to find the specified MongoCollection
+     * @return Last n logs
+     * @see
+     * <a href="https://api.mongodb.com/java/3.2/com/mongodb/client/MongoCollection.html">MongoCollection</a>
      */
     public MonitorLog[] getLastNLogs(MonitorRule rule) {
         MongoCollection<MonitorLog> logs = getLogCollection(
@@ -519,36 +544,40 @@ public final class MongoDatabaseManager {
         return result;
     }
 
-    /**
-     * Inserts a new document into a given collection with a given class type.
-     *
-     * @param <T> the type of class to use
-     * @param coll the name of the collection
-     * @param type the type of object
-     * @param obj the object to save
-     * @return true of false about the insertion operation
-     */
-    public <T> boolean insert(String coll, Class<T> type, T obj) {
-        MongoCollection<T> collection = getDatabase().getCollection(coll, type);
-
-        try {
-            collection.insertOne(obj);
-        } catch (MongoException ex) {
-            //FIXME Multicatch
-            return false;
-        }
-        return true;
-    }
-
+    //NOT NEEDED
+//    /**
+//     * Inserts a new document into a given collection with a given class type.
+//     *
+//     * @param <T> the type of class to use
+//     * @param coll the name of the collection
+//     * @param type the type of object
+//     * @param obj the object to save
+//     * @return true of false about the insertion operation
+//     */
+//    public <T> boolean insert(String coll, Class<T> type, T obj) {
+//        MongoCollection<T> collection = getDatabase().getCollection(coll, type);
+//
+//        try {
+//            collection.insertOne(obj);
+//        } catch (MongoException ex) {
+//            //FIXME Multicatch
+//            return false;
+//        }
+//        return true;
+//    }
     /**
      * Creates a new Bson filter used to find a specific rule identified by the
-     * given parameters. Uses the Rule collection.
+     * given parameters.
      *
      * @param providerSystemGroup the provider system group
      * @param providerSystemName the provider system name
      * @param consumerSystemGroup the consumer system group
      * @param consumerSystemName the consumer system name
-     * @return bson filter built with the given parameters
+     * @return Filter built with the given parameters
+     * @see
+     * <a href="https://api.mongodb.com/java/3.2/org/bson/conversions/Bson.html">Bson</a>
+     * @see
+     * <a href="https://api.mongodb.com/java/3.2/com/mongodb/client/model/Filters.html">Filters</a>
      */
     private Bson createRuleFilter(String providerSystemGroup, String providerSystemName, String consumerSystemGroup, String consumerSystemName) {
         return Filters.and(

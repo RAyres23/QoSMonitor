@@ -53,7 +53,7 @@ public class FTTSE_Presentation extends Presentation {
 
     private enum NodeKey {
 
-        BANDWIDTH("bandwidth", "Mbps"), DELAY("delay", "ms");
+        BANDWIDTH("bandwidth", "B/s"), DELAY("delay", "ms");
 
         private final String name;
         private final String unit;

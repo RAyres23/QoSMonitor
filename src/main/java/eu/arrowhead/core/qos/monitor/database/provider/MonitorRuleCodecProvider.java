@@ -12,20 +12,13 @@ import org.bson.codecs.configuration.CodecProvider;
 import org.bson.codecs.configuration.CodecRegistry;
 
 /**
+ * A provider of {@code MonitorRuleCodec} instances.
  *
- * @author Renato Ayres
+ * @author 1120681@isep.ipp.pt - Renato Ayres
  */
 public class MonitorRuleCodecProvider implements CodecProvider {
 
-    /**
-     *
-     * @param <T>
-     * @param clazz
-     * @param registry
-     * @return
-     */
     @Override
-    @SuppressWarnings("unchecked")
     public <T> Codec<T> get(Class<T> clazz, CodecRegistry registry) {
         if (clazz.equals(MonitorRule.class)) {
             return (Codec<T>) new MonitorRuleCodec();

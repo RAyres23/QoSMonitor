@@ -22,8 +22,11 @@ import org.bson.codecs.EncoderContext;
 import org.bson.types.ObjectId;
 
 /**
+ * A Codec for {@link MonitorRule} that generates BSON documents for storage in
+ * a MongoDB collection.
  *
- * @author Renato Ayres
+ * @author 1120681@isep.ipp.pt - Renato Ayres
+ * @see CollectibleCodec
  */
 public class MonitorRuleCodec implements CollectibleCodec<MonitorRule> {
 

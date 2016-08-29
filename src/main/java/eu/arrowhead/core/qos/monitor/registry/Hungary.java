@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package eu.arrowhead.core.qos.monitor.register;
+package eu.arrowhead.core.qos.monitor.registry;
 
 import eu.arrowhead.common.model.ArrowheadSystem;
 import eu.arrowhead.common.model.ServiceMetadata;

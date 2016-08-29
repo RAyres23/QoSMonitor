@@ -14,7 +14,7 @@ import eu.arrowhead.core.qos.monitor.event.EventProducerConfig;
 import eu.arrowhead.core.qos.monitor.event.ProducerRegistry;
 import eu.arrowhead.core.qos.monitor.event.SLAVerification;
 import eu.arrowhead.core.qos.monitor.event.model.Event;
-import eu.arrowhead.core.qos.monitor.register.ServiceRegister;
+import eu.arrowhead.core.qos.monitor.registry.ServiceRegister;
 import eu.arrowhead.core.qos.monitor.type.Monitor;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
