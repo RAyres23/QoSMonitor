@@ -21,13 +21,14 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 public class FTTSE implements Monitor {
 
     public static final Logger LOG = Logger.getLogger(FTTSE.class.getName());
-//    private static final Map<String, PresentationData> DATA = new ConcurrentHashMap();
-    private static final Map<String, PresentationData> DATA = new HashMap();
+    private static final Map<String, PresentationData> DATA = new ConcurrentHashMap();
+//    private static final Map<String, PresentationData> DATA = new HashMap();
 
     private enum Monitor {
 
@@ -206,7 +207,7 @@ public class FTTSE implements Monitor {
                     }
                     break;
                 case DELAY:
-                    if (loggedValue > requestedValue + 1) {
+                    if (loggedValue > requestedValue + 0.15) {
                         response.addParameter(new SLAVerificationParameter(key.name, requestedValue, loggedValue));
                     }
                     break;

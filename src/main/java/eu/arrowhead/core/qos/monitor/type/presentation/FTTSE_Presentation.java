@@ -13,6 +13,7 @@ import eu.arrowhead.core.qos.monitor.type.presentation.model.PresentationEvent;
 import eu.arrowhead.core.qos.monitor.type.presentation.model.SceneNode;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -96,15 +97,22 @@ public class FTTSE_Presentation extends Presentation {
 //        root.add(contentPane);
 //        add(root, BorderLayout.CENTER);
         add(root, BorderLayout.CENTER);
+
         setExtendedState(MAXIMIZED_BOTH);
+
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+
+        int width = new Double(screenSize.getWidth() / 1.25).intValue();
+        int height = new Double(screenSize.getHeight() / 1.25).intValue();
+
+        setMinimumSize(new Dimension(width / 2, height / 2));
 //        setUndecorated(true);
-        setResizable(true);
-        setMinimumSize(new Dimension(1120, 540));
 //        setLocationRelativeTo(null);
         pack();
 
-        setAlwaysOnTop(true);
+//        setAlwaysOnTop(true);
         setVisible(true);
+//        setResizable(true);
         requestFocus();
     }
 
@@ -126,7 +134,7 @@ public class FTTSE_Presentation extends Presentation {
             if (data.getLogs().peek().getParameters().get(key.name) == null) {
                 continue;
             }
-            SceneNode node = new SceneNode(SceneType.AREACHART, key.name, key.unit);
+            SceneNode node = new SceneNode(key.name, key.unit);
             nodes.put(key, node);
             boxCharts.getChildren().add(node.getChart());
             node.getChart().prefHeightProperty().bind(boxCharts.prefHeightProperty());
@@ -192,9 +200,12 @@ public class FTTSE_Presentation extends Presentation {
                     continue;
                 }
                 Double value = Double.valueOf(temp);
+                if (key == NodeKey.BANDWIDTH) {
+                    value *= 100;
+                }
                 SceneNode node = nodes.get(key);
                 if (node == null) {
-                    node = new SceneNode(SceneType.AREACHART, key.name, key.unit);
+                    node = new SceneNode(key.name, key.unit);
                     nodes.put(key, node);
                     boxCharts.getChildren().add(node.getChart());
                     node.getChart().prefHeightProperty().bind(boxCharts.prefHeightProperty());
@@ -211,8 +222,8 @@ public class FTTSE_Presentation extends Presentation {
 
         for (NodeKey key : keys) {
             SceneNode node = nodes.get(key);
-            if(node == null){
-            	continue;
+            if (node == null) {
+                continue;
             }
             ObservableList nodeSeriesData = node.getSeries().getData();
             NumberAxis xAxis = node.getXAxis();

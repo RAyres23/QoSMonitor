@@ -5,12 +5,12 @@
  */
 package eu.arrowhead.core.qos.monitor.type.presentation.model;
 
-import eu.arrowhead.core.qos.monitor.type.presentation.Presentation;
+import com.sun.javafx.charts.Legend;
 import javafx.geometry.Side;
 import javafx.scene.chart.AreaChart;
-import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.text.Font;
 
 /**
  *
@@ -18,12 +18,13 @@ import javafx.scene.chart.XYChart;
  */
 public class SceneNode {
 
-    private XYChart chart;
-    private NumberAxis xAxis;
+    private final XYChart chart;
+    private final NumberAxis xAxis;
     private final XYChart.Series series;
     private int xSeriesData;
+    private final int fontSize = 17;
 
-    public SceneNode(Presentation.SceneType type, String name, String unit) {
+    public SceneNode(String name, String unit) {
 
         xAxis = new NumberAxis();
         xAxis.setForceZeroInRange(false);
@@ -32,31 +33,23 @@ public class SceneNode {
         NumberAxis yAxis = new NumberAxis(0, Long.MAX_VALUE, 1);
         yAxis.setAutoRanging(true);
 
-        switch (type) {
-            case AREACHART:
-                chart = new AreaChart<Number, Number>(xAxis, yAxis) {
-                    // Override to remove symbols on each data point
-                    @Override
-                    protected void dataItemAdded(XYChart.Series<Number, Number> series, int itemIndex, XYChart.Data<Number, Number> item) {
-                    }
-                };
-                break;
-            case LINECHART:
-                chart = new LineChart<Number, Number>(xAxis, yAxis) {
-                    // Override to remove symbols on each data point
-                    @Override
-                    protected void dataItemAdded(XYChart.Series<Number, Number> series, int itemIndex, XYChart.Data<Number, Number> item) {
-                    }
-                };
-                break;
-            default:
-                throw new IllegalArgumentException("Chart type unavailable");
-        }
+        chart = new AreaChart<Number, Number>(xAxis, yAxis) {
+            // Override to remove symbols on each data point
+            @Override
+            protected void dataItemAdded(XYChart.Series<Number, Number> series, int itemIndex, XYChart.Data<Number, Number> item) {
+            }
+        };
 
         chart.setAnimated(false);
         chart.setTitle(unit);
         chart.setTitleSide(Side.LEFT);
         chart.setMinWidth(720);
+
+        Legend legend = (Legend) chart.lookup(".chart-legend");
+        legend.setStyle("-fx-font-size: " + fontSize + "px;");
+
+        xAxis.tickLabelFontProperty().set(Font.font(fontSize));
+        yAxis.tickLabelFontProperty().set(Font.font(fontSize));
 
         // -- Chart Series
         series = new XYChart.Series();

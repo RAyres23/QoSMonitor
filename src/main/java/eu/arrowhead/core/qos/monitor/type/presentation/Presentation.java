@@ -20,10 +20,6 @@ public abstract class Presentation extends JFrame {
     protected final String queueKey;
     protected final PresentationData data;
 
-    public enum SceneType {
-        AREACHART, LINECHART;
-    }
-
     public Presentation(String title, String queueKey, PresentationData data) {
         super(title);
         this.queueKey = queueKey;

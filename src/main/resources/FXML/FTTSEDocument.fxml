@@ -7,29 +7,24 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<GridPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="540.0" prefWidth="1120.0" vgap="10.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="eu.arrowhead.core.qos.monitor.type.presentation.FTTSEDocumentController">
-  <columnConstraints>
-    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-  </columnConstraints>
-  <rowConstraints>
-    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-  </rowConstraints>
-   <children>
-      <ScrollPane fx:id="charts" fitToHeight="true" prefHeight="270.0" prefViewportHeight="265.0" prefWidth="1120.0" GridPane.hgrow="ALWAYS" />
-      <VBox fx:id="vbox" prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="1">
+<BorderPane prefHeight="200.0" prefWidth="200.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <bottom>
+      <VBox fx:id="vbox" minHeight="-Infinity" prefHeight="400.0" prefWidth="100.0" BorderPane.alignment="CENTER">
          <children>
             <Label fx:id="labelEvents" text="Events" VBox.vgrow="NEVER">
                <font>
                   <Font name="Calibri" size="18.0" />
                </font>
             </Label>
-            <TableView fx:id="events" prefHeight="270.0" prefWidth="1120.0" VBox.vgrow="ALWAYS">
+            <TableView fx:id="events" prefHeight="0.0" prefWidth="1120.0" VBox.vgrow="ALWAYS">
                <columnResizePolicy>
                   <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                </columnResizePolicy>
             </TableView>
          </children>
       </VBox>
-   </children>
-</GridPane>
+   </bottom>
+   <center>
+      <ScrollPane fx:id="charts" fitToHeight="true" prefHeight="270.0" prefViewportHeight="265.0" prefWidth="1120.0" BorderPane.alignment="CENTER" />
+   </center>
+</BorderPane>
