@@ -207,7 +207,7 @@ public class FTTSE implements Monitor {
                     }
                     break;
                 case DELAY:
-                    if (loggedValue > requestedValue + 0.15) {
+                    if (loggedValue > (requestedValue) + 0.15) {
                         response.addParameter(new SLAVerificationParameter(key.name, requestedValue, loggedValue));
                     }
                     break;

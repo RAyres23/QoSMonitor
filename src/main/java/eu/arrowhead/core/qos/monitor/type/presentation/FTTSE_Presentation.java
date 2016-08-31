@@ -200,9 +200,6 @@ public class FTTSE_Presentation extends Presentation {
                     continue;
                 }
                 Double value = Double.valueOf(temp);
-                if (key == NodeKey.BANDWIDTH) {
-                    value *= 100;
-                }
                 SceneNode node = nodes.get(key);
                 if (node == null) {
                     node = new SceneNode(key.name, key.unit);
