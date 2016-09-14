@@ -38,8 +38,12 @@ public class ServletContextClass implements ServletContextListener {
         //Service Registry
         register.registerAll();
 
-        // Load EventProducer configurations and register in EventHandler
-        EventProducerConfig.loadConfigurations();
+        try {
+            // Load EventProducer configurations and register in EventHandler
+            EventProducerConfig.loadConfigurations();
+        } catch (Exception ex) {
+            System.out.println(ex);
+        }
         new ProducerRegistry().registerAsProducer();
 
         MongoDatabaseManager.getInstance().startManager();

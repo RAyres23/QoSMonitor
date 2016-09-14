@@ -11,7 +11,6 @@ import eu.arrowhead.common.model.ServiceMetadata;
 import eu.arrowhead.common.model.messages.OrchestrationForm;
 import eu.arrowhead.common.model.messages.OrchestrationResponse;
 import eu.arrowhead.common.model.messages.ServiceRequestForm;
-import eu.arrowhead.core.qos.factories.Value;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,7 +19,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -45,28 +43,28 @@ public class EventProducerConfig {
     private Properties props;
     private static final Logger LOG = Logger.getLogger(EventProducerConfig.class.getName());
 
-    public static synchronized EventProducerConfig getInstance() {
+    public static synchronized EventProducerConfig getInstance() throws Exception {
         if (instance == null) {
             initInstance();
         }
         return instance;
     }
 
-    private static void initInstance() {
+    private static void initInstance() throws Exception {
         if (instance == null) {
             instance = new EventProducerConfig();
         }
     }
 
-    private EventProducerConfig() {
+    private EventProducerConfig() throws Exception {
         initConfig();
     }
 
-    public static void loadConfigurations() {
+    public static void loadConfigurations() throws Exception {
         initInstance();
     }
 
-    public void reloadConfigurations() {
+    public void reloadConfigurations() throws Exception {
         EventProducerConfig.serviceURI = null;
         EventProducerConfig.serviceRegistryAsProducerPath = null;
         EventProducerConfig.servicePublishEventPath = null;
@@ -100,39 +98,42 @@ public class EventProducerConfig {
         return props;
     }
 
-    private void initConfig() {
-//        Client client = ClientBuilder.newClient();
-//        WebTarget target = client.target(getProps().getProperty("orchestrator.orchestration.uri"));
-//
-//        ArrowheadService requestedService = getRequestedService();
-//        ArrowheadSystem requesterSystem = getRequesterSystem();
-//
-//        ServiceRequestForm form = new ServiceRequestForm(requestedService, new HashMap<String, Value>(), requesterSystem);
-//
-//        Response response = target
-//                .request(MediaType.APPLICATION_JSON)
-//                .post(Entity.entity(form, MediaType.APPLICATION_JSON));
-//
-//        if (response.getStatusInfo().getStatusCode() != Response.Status.OK.getStatusCode()) {
-//            String msg = response.getStatusInfo().getReasonPhrase();
-//            client.close();
-//            throw new RuntimeException(msg);
-//        }
-//
-//        OrchestrationForm orchForm = response.readEntity(OrchestrationResponse.class).getResponse().get(0);
-//
-//        client.close();
+    private void initConfig() throws Exception {
+        Client client = ClientBuilder.newClient();
+        WebTarget target = client.target(getProps().getProperty("orchestrator.orchestration.uri"));
+
+        ArrowheadService requestedService = getRequestedService();
+        ArrowheadSystem requesterSystem = getRequesterSystem();
+
+        ServiceRequestForm form = new ServiceRequestForm();
+        form.setRequesterSystem(requesterSystem);
+        form.setRequestedService(requestedService);
+
+        Response response = target
+                .request(MediaType.APPLICATION_JSON)
+                .post(Entity.entity(form, MediaType.APPLICATION_JSON));
+
+        if (response.getStatusInfo().getStatusCode() != Response.Status.OK.getStatusCode()) {
+            String msg = response.getStatusInfo().getReasonPhrase();
+            client.close();
+            LOG.log(Level.WARNING, "Unable to find Event Handler. Core functionality not available");
+            throw new Exception(msg);
+        }
+
+        OrchestrationForm orchForm = response.readEntity(OrchestrationResponse.class).getResponse().get(0);
+
+        client.close();
 
         try {
 //            setServiceURI(new URI("http://" + orchForm.getProvider().getIPAddress() + "+" + orchForm.getProvider().getPort() + "/eventhandler"));
-//            setServiceURI(new URI("http",
-//                    null,
-//                    orchForm.getProvider().getIPAddress(),
-//                    Integer.parseInt(orchForm.getProvider().getPort()),
-//                    orchForm.getServiceURI(),
-//                    null,
-//                    null));
-            setServiceURI(new URI("http://localhost:8180/eventhandler"));
+            setServiceURI(new URI("http",
+                    null,
+                    orchForm.getProvider().getAddress(),
+                    Integer.parseInt(orchForm.getProvider().getPort()),
+                    orchForm.getServiceURI(),
+                    null,
+                    null));
+//            setServiceURI(new URI("http://localhost:8180/eventhandler"));
         } catch (URISyntaxException ex) {
             String exMsg = "Failure in construction of service URI";
             LOG.log(Level.SEVERE, exMsg);

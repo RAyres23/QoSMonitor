@@ -95,7 +95,33 @@ public class Hungary implements ServiceRegister {
 
     @Override
     public boolean unregisterQoSMonitorService() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ServiceRegistryEntry entry = createServiceRegistryEntry();
+
+        Properties temp = getProps();
+
+        String registryURI = temp.getProperty("serviceregistry.uri");
+
+        Client client = ClientBuilder.newClient();
+        WebTarget target = client.target(registryURI);
+
+        String serviceGroup = temp.getProperty("monitor.service.group");
+        String serviceName = temp.getProperty("monitor.service.name");
+        String interfaces = temp.getProperty("monitor.service.interfaces");
+
+        Response response = target
+                .path(serviceGroup)
+                .path(serviceName)
+                .path(interfaces)
+                .request()
+                .header("Content-Type", "application/json")
+                .put(Entity.json(entry));
+
+        int statusCode = response.getStatus();
+        LOG.log(Level.INFO, "ServiceRegistry response: {0}", statusCode);
+
+        client.close();
+
+        return statusCode > 199 && statusCode < 300;
     }
 
     private ServiceRegistryEntry createServiceRegistryEntry() {

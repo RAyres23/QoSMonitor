@@ -20,9 +20,9 @@ import javax.ws.rs.core.Response;
  *
  * @author Renato Ayres
  */
-@Path("monitor")
+@Path("Monitor")
 @Produces(MediaType.APPLICATION_JSON)
-@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+@Consumes(MediaType.APPLICATION_JSON)
 public class QoSMonitorResource {
 
     private final QoSMonitorService monitor = new QoSMonitorService();
@@ -72,7 +72,7 @@ public class QoSMonitorResource {
      * monitor rule
      */
     @POST
-    @Path("/rule")
+    @Path("/QoSRule")
     public Response addMonitorRule(QoSMonitorAddRule message) {
 
         try {
@@ -84,7 +84,7 @@ public class QoSMonitorResource {
                     .build();
         }
 
-        return Response.ok("Added").build();
+        return Response.ok("OK").build();
     }
 
     /**
@@ -99,10 +99,10 @@ public class QoSMonitorResource {
      * monitor rule
      */
     @DELETE
-    @Path("/rule")
+    @Path("/QoSRule")
     public Response deleteMonitorRule(QoSMonitorRemoveRule message) {
         monitor.removeMonitorRule(message);
-        return Response.ok("Removed!").build();
+        return Response.ok("OK").build();
     }
 
     /**
@@ -115,7 +115,7 @@ public class QoSMonitorResource {
      * monitor log
      */
     @POST
-    @Path("/log")
+    @Path("/QoSLog")
     public Response addMonitorLog(QoSMonitorLog message) {
         try {
             monitor.addMonitorLog(message);
@@ -127,11 +127,11 @@ public class QoSMonitorResource {
                     .build();
         }
         // FIXME
-        return Response.ok("Logged!").build();
+        return Response.ok("OK").build();
     }
 
     @POST
-    @Path("/event")
+    @Path("/Event")
     public Response sendEvent(ServiceError error) {
         try {
             monitor.addServiceError(error);
@@ -142,6 +142,6 @@ public class QoSMonitorResource {
                     .entity(ex.getMessage())
                     .build();
         }
-        return Response.ok("Sent").build();
+        return Response.ok("OK").build();
     }
 }

@@ -202,7 +202,7 @@ public class FTTSE implements Monitor {
 
             switch (key) {
                 case BANDWIDTH:
-                    if (loggedValue > requestedValue) {
+                    if (loggedValue > (requestedValue * 1.1)) {
                         response.addParameter(new SLAVerificationParameter(key.name, requestedValue, loggedValue));
                     }
                     break;

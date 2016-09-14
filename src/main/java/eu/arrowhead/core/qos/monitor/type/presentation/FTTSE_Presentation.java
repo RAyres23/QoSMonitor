@@ -48,7 +48,7 @@ public class FTTSE_Presentation extends Presentation {
     private final JFXPanel contentPane;
     private final HBox boxCharts;
     private Map<NodeKey, SceneNode> nodes = new HashMap<>();
-    private static final int MAX_DATA_POINTS = 50;
+    private static final int MAX_DATA_POINTS = 80;
     private static final int MAX_TABLE_POINTS = 30;
     private final ObservableList<PresentationEvent> events;
 
@@ -131,6 +131,9 @@ public class FTTSE_Presentation extends Presentation {
         NodeKey[] keys = NodeKey.values();
 
         for (NodeKey key : keys) {
+            if (data.getLogs().isEmpty()) {
+                break;
+            }
             if (data.getLogs().peek().getParameters().get(key.name) == null) {
                 continue;
             }
