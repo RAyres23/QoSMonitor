@@ -1,11 +1,11 @@
-package eu.arrowhead.core.qos.monitor.type;
+package eu.arrowhead.core.qos.monitor.protocol;
 
 import eu.arrowhead.common.exception.InvalidParameterException;
 import eu.arrowhead.common.exception.MissingParameterException;
 import eu.arrowhead.common.model.ArrowheadSystem;
-import eu.arrowhead.common.model.messages.QoSMonitorAddRule;
-import eu.arrowhead.common.model.messages.QoSMonitorLog;
-import eu.arrowhead.common.model.messages.ServiceError;
+import eu.arrowhead.common.model.messages.AddMonitorRule;
+import eu.arrowhead.common.model.messages.AddMonitorLog;
+import eu.arrowhead.common.model.messages.EventMessage;
 import eu.arrowhead.core.qos.monitor.database.FilterParameter;
 import eu.arrowhead.core.qos.monitor.database.MongoDatabaseManager;
 import eu.arrowhead.core.qos.monitor.database.MonitorLog;
@@ -14,9 +14,9 @@ import eu.arrowhead.core.qos.monitor.event.EventUtil;
 import eu.arrowhead.core.qos.monitor.event.SLAVerificationParameter;
 import eu.arrowhead.core.qos.monitor.event.SLAVerificationResponse;
 import eu.arrowhead.core.qos.monitor.event.model.Event;
-import eu.arrowhead.core.qos.monitor.type.presentation.FTTSE_Presentation;
-import eu.arrowhead.core.qos.monitor.type.presentation.model.PresentationData;
-import eu.arrowhead.core.qos.monitor.type.presentation.model.PresentationEvent;
+import eu.arrowhead.core.qos.monitor.protocol.presentation.FTTSE_Presentation;
+import eu.arrowhead.core.qos.monitor.protocol.presentation.model.PresentationData;
+import eu.arrowhead.core.qos.monitor.protocol.presentation.model.PresentationEvent;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -60,7 +60,7 @@ public class FTTSE implements Monitor {
     }
 
     @Override
-    public MonitorRule filterRuleMessage(QoSMonitorAddRule message) {
+    public MonitorRule filterRuleMessage(AddMonitorRule message) {
         ArrowheadSystem provider = message.getProvider();
         ArrowheadSystem consumer = message.getConsumer();
 
@@ -83,15 +83,15 @@ public class FTTSE implements Monitor {
 
         parameters.put(name, streamID);
 
-        return new MonitorRule(message.getType(),
+        return new MonitorRule(message.getProtocol(),
                 provider.getSystemName(), provider.getSystemGroup(),
                 consumer.getSystemName(), consumer.getSystemGroup(),
                 parameters, message.isSoftRealTime());
     }
 
     @Override
-    public MonitorLog filterLogMessage(QoSMonitorLog message) {
-        MonitorLog log = new MonitorLog(message.getType(), message.getTimestamp(), filterParameters(message.getParameters()));
+    public MonitorLog filterLogMessage(AddMonitorLog message) {
+        MonitorLog log = new MonitorLog(message.getProtocol(), message.getTimestamp(), filterParameters(message.getParameters()));
 
         String queueKey = (message.getProvider().getSystemGroup() + message.getProvider().getSystemName() + message.getConsumer().getSystemGroup() + message.getConsumer().getSystemName());
         if (!(DATA.containsKey(queueKey))) {
@@ -115,7 +115,7 @@ public class FTTSE implements Monitor {
     }
 
     @Override
-    public Event addServiceError(ServiceError error) {
+    public Event addServiceError(EventMessage error) {
 
         String stream = error.getParameters().get(Key.STREAMID.name);
         if (stream == null) {

@@ -3,9 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package eu.arrowhead.core.qos.monitor.type.presentation;
+package eu.arrowhead.core.qos.monitor.protocol.presentation;
 
-import eu.arrowhead.core.qos.monitor.type.presentation.model.PresentationData;
+import eu.arrowhead.core.qos.monitor.protocol.presentation.model.PresentationData;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javafx.animation.AnimationTimer;

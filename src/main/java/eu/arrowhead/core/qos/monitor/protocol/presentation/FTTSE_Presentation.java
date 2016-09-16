@@ -3,14 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package eu.arrowhead.core.qos.monitor.type.presentation;
+package eu.arrowhead.core.qos.monitor.protocol.presentation;
 
 import com.sun.javafx.collections.ObservableListWrapper;
 import eu.arrowhead.core.qos.monitor.database.MonitorLog;
-import eu.arrowhead.core.qos.monitor.type.FTTSE;
-import eu.arrowhead.core.qos.monitor.type.presentation.model.PresentationData;
-import eu.arrowhead.core.qos.monitor.type.presentation.model.PresentationEvent;
-import eu.arrowhead.core.qos.monitor.type.presentation.model.SceneNode;
+import eu.arrowhead.core.qos.monitor.protocol.FTTSE;
+import eu.arrowhead.core.qos.monitor.protocol.presentation.model.PresentationData;
+import eu.arrowhead.core.qos.monitor.protocol.presentation.model.PresentationEvent;
+import eu.arrowhead.core.qos.monitor.protocol.presentation.model.SceneNode;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Toolkit;

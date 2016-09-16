@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package eu.arrowhead.core.qos.monitor.type.presentation;
+package eu.arrowhead.core.qos.monitor.protocol.presentation;
 
 import eu.arrowhead.core.qos.monitor.event.model.Event;
 import java.net.URL;

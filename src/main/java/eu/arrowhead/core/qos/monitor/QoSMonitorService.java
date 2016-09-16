@@ -3,19 +3,17 @@ package eu.arrowhead.core.qos.monitor;
 import eu.arrowhead.common.exception.InvalidMonitorTypeException;
 import eu.arrowhead.common.exception.MonitorRuleNotFoundException;
 import eu.arrowhead.common.exception.NoMonitorParametersException;
-import eu.arrowhead.common.model.messages.QoSMonitorAddRule;
-import eu.arrowhead.common.model.messages.QoSMonitorLog;
-import eu.arrowhead.common.model.messages.QoSMonitorRemoveRule;
-import eu.arrowhead.common.model.messages.ServiceError;
+import eu.arrowhead.common.model.messages.AddMonitorLog;
+import eu.arrowhead.common.model.messages.AddMonitorRule;
+import eu.arrowhead.common.model.messages.RemoveMonitorRule;
+import eu.arrowhead.common.model.messages.EventMessage;
 import eu.arrowhead.core.qos.monitor.database.MongoDatabaseManager;
 import eu.arrowhead.core.qos.monitor.database.MonitorLog;
 import eu.arrowhead.core.qos.monitor.database.MonitorRule;
-import eu.arrowhead.core.qos.monitor.event.EventProducerConfig;
-import eu.arrowhead.core.qos.monitor.event.ProducerRegistry;
 import eu.arrowhead.core.qos.monitor.event.SLAVerification;
 import eu.arrowhead.core.qos.monitor.event.model.Event;
+import eu.arrowhead.core.qos.monitor.protocol.Monitor;
 import eu.arrowhead.core.qos.monitor.registry.ServiceRegister;
-import eu.arrowhead.core.qos.monitor.type.Monitor;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -35,7 +33,7 @@ import java.util.logging.Logger;
  */
 public class QoSMonitorService {
 
-    private static final String MONITOR_TYPE_PACKAGE = "eu.arrowhead.core.qos.monitor.type.";
+    private static final String MONITOR_TYPE_PACKAGE = "eu.arrowhead.core.qos.monitor.protocol.";
     private static final ExecutorService EXEC = Executors.newCachedThreadPool();
     private static final Logger LOG = Logger.getLogger(QoSMonitorService.class.getName());
 
@@ -91,10 +89,10 @@ public class QoSMonitorService {
         });
 
         // [PT] Starting MongoDB, loading EventProducer configurations and registering in EventHandler
-        EventProducerConfig.loadConfigurations();
-        new ProducerRegistry().registerAsProducer();
-
-        MongoDatabaseManager.getInstance().startManager();
+//        EventProducerConfig.loadConfigurations();
+//        new ProducerRegistry().registerAsProducer();
+//
+//        MongoDatabaseManager.getInstance().startManager();
     }
 
     /**
@@ -105,7 +103,7 @@ public class QoSMonitorService {
      * @throws InstantiationException
      * @throws IllegalAccessException
      */
-    public void addMonitorRule(QoSMonitorAddRule message)
+    public void addRule(AddMonitorRule message)
             throws InstantiationException, IllegalAccessException {
 
         if (message.getParameters().isEmpty()) {
@@ -114,9 +112,9 @@ public class QoSMonitorService {
 
         Monitor monitor = null;
         try {
-            monitor = getMonitorClass(message.getType());
+            monitor = getMonitorClass(message.getProtocol());
         } catch (ClassNotFoundException ex) {
-            String excMessage = "Type " + message.getType() + " not found. Make "
+            String excMessage = "Type " + message.getProtocol() + " not found. Make "
                     + "sure you have the right monitor type for your "
                     + "situation and that it's available in this version "
                     + "and/or not misspelled.";
@@ -135,7 +133,7 @@ public class QoSMonitorService {
      *
      * @param message message with information needed for the rule to be removed
      */
-    public void removeMonitorRule(QoSMonitorRemoveRule message) {
+    public void removeRule(RemoveMonitorRule message) {
         MongoDatabaseManager.getInstance().deleteRule(message.getProvider(), message.getConsumer());
     }
 
@@ -147,7 +145,7 @@ public class QoSMonitorService {
      * @throws InstantiationException
      * @throws IllegalAccessException
      */
-    public void addMonitorLog(QoSMonitorLog message) throws InstantiationException, IllegalAccessException {
+    public void addLog(AddMonitorLog message) throws InstantiationException, IllegalAccessException {
 
         if (message.getParameters().isEmpty()) {
             throw new NoMonitorParametersException("No monitor parameters found!");
@@ -161,9 +159,9 @@ public class QoSMonitorService {
 
         Monitor monitor = null;
         try {
-            monitor = getMonitorClass(message.getType());
+            monitor = getMonitorClass(message.getProtocol());
         } catch (ClassNotFoundException ex) {
-            String excMessage = "Type " + message.getType() + " not found. Make "
+            String excMessage = "Type " + message.getProtocol() + " not found. Make "
                     + "sure you have the right monitor type for your "
                     + "situation and that it's available in this version "
                     + "and/or not misspelled.";
@@ -171,9 +169,9 @@ public class QoSMonitorService {
             throw new InvalidMonitorTypeException(excMessage);
         }
 
-        if (!(message.getType().equals(rule.getType()))) {
+        if (!(message.getProtocol().equals(rule.getType()))) {
             String excMessage = "Monitor type different from the existing rule for the given services."
-                    + "\nYour type: " + message.getType() + "Existing rule type: " + rule.getType();
+                    + "\nYour type: " + message.getProtocol() + "Existing rule type: " + rule.getType();
             LOG.log(Level.SEVERE, excMessage);
             throw new MonitorRuleNotFoundException(excMessage);
         }
@@ -192,11 +190,11 @@ public class QoSMonitorService {
     /**
      * Intermediates between message and monitor type.
      *
-     * @param message ServiceError message
+     * @param message EventMessage message
      * @throws java.lang.InstantiationException
      * @throws java.lang.IllegalAccessException
      */
-    public void addServiceError(ServiceError message) throws InstantiationException, IllegalAccessException {
+    public void sendEvent(EventMessage message) throws InstantiationException, IllegalAccessException {
 
         if (message.getParameters().isEmpty()) {
             throw new NoMonitorParametersException("No parameters found in service error message!");
@@ -204,9 +202,9 @@ public class QoSMonitorService {
 
         Monitor monitor = null;
         try {
-            monitor = getMonitorClass(message.getType());
+            monitor = getMonitorClass(message.getProtocol());
         } catch (ClassNotFoundException ex) {
-            String excMessage = "Type " + message.getType() + " not found. Make "
+            String excMessage = "Type " + message.getProtocol() + " not found. Make "
                     + "sure you have the right monitor type for your "
                     + "situation and that it's available in this version "
                     + "and/or not misspelled.";
@@ -286,7 +284,7 @@ public class QoSMonitorService {
      * @throws InstantiationException
      * @throws IllegalAccessException
      */
-    public Monitor getMonitorClass(String name)
+    private Monitor getMonitorClass(String name)
             throws ClassNotFoundException, InstantiationException, IllegalAccessException {
         Class<?> cl;
 

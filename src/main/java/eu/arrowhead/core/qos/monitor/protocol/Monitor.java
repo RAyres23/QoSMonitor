@@ -1,31 +1,31 @@
-package eu.arrowhead.core.qos.monitor.type;
+package eu.arrowhead.core.qos.monitor.protocol;
 
-import eu.arrowhead.common.model.messages.QoSMonitorAddRule;
-import eu.arrowhead.common.model.messages.QoSMonitorLog;
-import eu.arrowhead.common.model.messages.ServiceError;
+import eu.arrowhead.common.model.messages.AddMonitorRule;
+import eu.arrowhead.common.model.messages.AddMonitorLog;
+import eu.arrowhead.common.model.messages.EventMessage;
 import eu.arrowhead.core.qos.monitor.database.MonitorLog;
 import eu.arrowhead.core.qos.monitor.database.MonitorRule;
 import eu.arrowhead.core.qos.monitor.event.SLAVerificationResponse;
 import eu.arrowhead.core.qos.monitor.event.model.Event;
-import eu.arrowhead.core.qos.monitor.type.presentation.model.PresentationEvent;
+import eu.arrowhead.core.qos.monitor.protocol.presentation.model.PresentationEvent;
 
 public interface Monitor {
 
     /**
-     * Filters a QoSMonitorAddRule message into a MonitorRule.
+     * Filters a AddMonitorRule message into a MonitorRule.
      *
      * @param message message to filter
      * @return instance of created MonitorRule
      */
-    public MonitorRule filterRuleMessage(QoSMonitorAddRule message);
+    public MonitorRule filterRuleMessage(AddMonitorRule message);
 
     /**
-     * Filters a QoSMonitorLog message into a MonitorLog
+     * Filters a AddMonitorLog message into a MonitorLog
      *
      * @param message message to filter
      * @return instance of created MonitorLog
      */
-    public MonitorLog filterLogMessage(QoSMonitorLog message);
+    public MonitorLog filterLogMessage(AddMonitorLog message);
 
     /**
      * Adds a new Event to the queue of events.
@@ -39,10 +39,10 @@ public interface Monitor {
      * Creates an Event to the EventHandler and shows to the user if JavaFX
      * enabled.
      *
-     * @param error ServiceError message
+     * @param error EventMessage message
      * @return
      */
-    public Event addServiceError(ServiceError error);
+    public Event addServiceError(EventMessage error);
 
     /**
      * Verifies if the SLA is being respected regarding the existing rule and

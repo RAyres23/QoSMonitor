@@ -14,7 +14,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author Renato Ayres
  */
 @XmlRootElement
-public class QoSMonitorRemoveRule {
+public class RemoveMonitorRule {
 
     private ArrowheadSystem provider;
     private ArrowheadSystem consumer;
@@ -22,7 +22,7 @@ public class QoSMonitorRemoveRule {
     /**
      * Creates a new instance with no parameters initialized.
      */
-    public QoSMonitorRemoveRule() {
+    public RemoveMonitorRule() {
     }
 
     /**
@@ -32,7 +32,7 @@ public class QoSMonitorRemoveRule {
      * @param provider the service provider
      * @param consumer the service consumer
      */
-    public QoSMonitorRemoveRule(ArrowheadSystem provider, ArrowheadSystem consumer) {
+    public RemoveMonitorRule(ArrowheadSystem provider, ArrowheadSystem consumer) {
         this.provider = provider;
         this.consumer = consumer;
     }

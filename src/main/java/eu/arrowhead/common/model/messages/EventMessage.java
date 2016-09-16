@@ -5,31 +5,32 @@ import java.util.Map;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class ServiceError {
+public class EventMessage {
 
-    private String type;
+    private String protocol;
     private ArrowheadSystem system;
     private Map<String, String> parameters;
     private String errorMessage;
 
-    public ServiceError() {
+    public EventMessage() {
         super();
         // TODO Auto-generated constructor stub
     }
 
-    public ServiceError(String type, ArrowheadSystem system, Map<String, String> parameters, String errorMessage) {
+    public EventMessage(String protocol, ArrowheadSystem system, Map<String, String> parameters, String errorMessage) {
         super();
+        this.protocol = protocol;
         this.system = system;
         this.parameters = parameters;
         this.errorMessage = errorMessage;
     }
 
-    public String getType() {
-        return type;
+    public String getProtocol() {
+        return protocol;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
     }
 
     public ArrowheadSystem getSystem() {

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package eu.arrowhead.core.qos.monitor.type.presentation.model;
+package eu.arrowhead.core.qos.monitor.protocol.presentation.model;
 
 import com.sun.javafx.charts.Legend;
 import javafx.geometry.Side;

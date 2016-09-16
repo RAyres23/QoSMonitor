@@ -1,66 +1,65 @@
 package eu.arrowhead.common.model.messages;
 
+import eu.arrowhead.common.model.ArrowheadSystem;
 import java.util.Map;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
-import eu.arrowhead.common.model.ArrowheadSystem;
-
 /**
- * Message used to create a new monitor rule.
+ * Message used to add a new monitor log.
  *
  * @author Renato Ayres
  */
 @XmlRootElement
-public class QoSMonitorAddRule {
+public class AddMonitorLog {
 
-    private String type;
+    private String protocol;
     private ArrowheadSystem provider;
     private ArrowheadSystem consumer;
     private Map<String, String> parameters;
-    private boolean softRealTime;
+    private Long timestamp;
 
     /**
      * Creates a new instance with no parameters initialized.
      */
-    public QoSMonitorAddRule() {
+    public AddMonitorLog() {
     }
 
     /**
-     * Creates a new instance with the given monitor type, service provider,
-     * service consumer, monitor parameters and a soft real time clause.
+     * Creates a new instance with the given monitor protocol, service provider,
+ service consumer, monitor parameters, and monitor timestamp.
      *
-     * @param type the monitor type
+     * @param protocol the monitor protocol
      * @param provider the service provider
      * @param consumer the service consumer
      * @param parameters the monitor parameters. It works by getting the value
      * of the parameter (key) e.g. key=bandwidth, value=100
-     * @param softRealTime the soft real time clause
+     * @param timestamp the monitor timestamp
      */
-    public QoSMonitorAddRule(String type, ArrowheadSystem provider, ArrowheadSystem consumer,
-            Map<String, String> parameters, boolean softRealTime) {
-        this.type = type;
+    public AddMonitorLog(String protocol, ArrowheadSystem provider,
+            ArrowheadSystem consumer, Map<String, String> parameters, Long timestamp) {
+        this.protocol = protocol;
         this.provider = provider;
         this.consumer = consumer;
         this.parameters = parameters;
+        this.timestamp = timestamp;
     }
 
     /**
-     * Gets the monitor type
+     * Gets the monitor protocol
      *
-     * @return the monitor type
+     * @return the monitor protocol
      */
-    public String getType() {
-        return type;
+    public String getProtocol() {
+        return protocol;
     }
 
     /**
-     * Sets the monitor type
+     * Sets the monitor protocol
      *
-     * @param type the monitor type
+     * @param protocol the monitor protocol
      */
-    public void setType(String type) {
-        this.type = type;
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
     }
 
     /**
@@ -109,7 +108,7 @@ public class QoSMonitorAddRule {
     }
 
     /**
-     * Sets the monitor of parameters
+     * Sets the monitor parameters.
      *
      * @param parameters the monitor parameters
      */
@@ -118,20 +117,20 @@ public class QoSMonitorAddRule {
     }
 
     /**
-     * Gets the soft real time clause.
+     * Gets the monitor timestamp
      *
-     * @return the soft real time clause
+     * @return the monitor timestamp
      */
-    public boolean isSoftRealTime() {
-        return softRealTime;
+    public Long getTimestamp() {
+        return timestamp;
     }
 
     /**
-     * Sets the soft real time clause.
+     * Sets the monitor timestamp
      *
-     * @param softRealTime the soft real time clause
+     * @param timestamp the monitor timestamp
      */
-    public void setSoftRealTime(boolean softRealTime) {
-        this.softRealTime = softRealTime;
+    public void setTimestamp(Long timestamp) {
+        this.timestamp = timestamp;
     }
 }

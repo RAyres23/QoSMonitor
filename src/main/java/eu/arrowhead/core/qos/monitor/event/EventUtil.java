@@ -6,10 +6,10 @@
 package eu.arrowhead.core.qos.monitor.event;
 
 import com.google.gson.Gson;
-import eu.arrowhead.common.model.messages.ServiceError;
+import eu.arrowhead.common.model.messages.EventMessage;
 import eu.arrowhead.core.qos.monitor.event.model.Event;
 import eu.arrowhead.core.qos.monitor.event.model.Metadata;
-import eu.arrowhead.core.qos.monitor.type.presentation.model.PresentationEvent;
+import eu.arrowhead.core.qos.monitor.protocol.presentation.model.PresentationEvent;
 
 /**
  *
@@ -18,12 +18,12 @@ import eu.arrowhead.core.qos.monitor.type.presentation.model.PresentationEvent;
 public final class EventUtil {
 
     /**
-     * Creates a new Event from given ServiceError parameter
+     * Creates a new Event from given EventMessage parameter
      *
      * @param error
      * @return
      */
-    public static final Event createEvent(ServiceError error) {
+    public static final Event createEvent(EventMessage error) {
         Event event = new Event();
         Metadata meta = new Metadata();
         meta.setSeverity(1);
@@ -37,12 +37,12 @@ public final class EventUtil {
     }
 
     /**
-     * Creates a new PresentationEvent from given ServiceError parameter
+     * Creates a new PresentationEvent from given EventMessage parameter
      *
      * @param error
      * @return
      */
-    public static final PresentationEvent createPresentationEvent(ServiceError error) {
+    public static final PresentationEvent createPresentationEvent(EventMessage error) {
         String from = error.getSystem().getSystemGroup() + error.getSystem().getSystemName();
 
         PresentationEvent event = new PresentationEvent(from, "error", 1, error.getErrorMessage());
