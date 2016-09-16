@@ -1,7 +1,7 @@
 package eu.arrowhead.core.qos.monitor.protocol;
 
-import eu.arrowhead.common.model.messages.AddMonitorRule;
 import eu.arrowhead.common.model.messages.AddMonitorLog;
+import eu.arrowhead.common.model.messages.AddMonitorRule;
 import eu.arrowhead.common.model.messages.EventMessage;
 import eu.arrowhead.core.qos.monitor.database.MonitorLog;
 import eu.arrowhead.core.qos.monitor.database.MonitorRule;
@@ -9,7 +9,7 @@ import eu.arrowhead.core.qos.monitor.event.SLAVerificationResponse;
 import eu.arrowhead.core.qos.monitor.event.model.Event;
 import eu.arrowhead.core.qos.monitor.protocol.presentation.model.PresentationEvent;
 
-public interface Monitor {
+public interface IProtocol {
 
     /**
      * Filters a AddMonitorRule message into a MonitorRule.
@@ -39,10 +39,10 @@ public interface Monitor {
      * Creates an Event to the EventHandler and shows to the user if JavaFX
      * enabled.
      *
-     * @param error EventMessage message
+     * @param event EventMessage message
      * @return
      */
-    public Event addServiceError(EventMessage error);
+    public Event sendEvent(EventMessage event);
 
     /**
      * Verifies if the SLA is being respected regarding the existing rule and

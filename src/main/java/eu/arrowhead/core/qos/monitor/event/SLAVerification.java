@@ -11,11 +11,11 @@ import eu.arrowhead.core.qos.monitor.database.MonitorLog;
 import eu.arrowhead.core.qos.monitor.database.MonitorRule;
 import eu.arrowhead.core.qos.monitor.event.model.Event;
 import eu.arrowhead.core.qos.monitor.event.model.Metadata;
-import eu.arrowhead.core.qos.monitor.protocol.Monitor;
 import eu.arrowhead.core.qos.monitor.protocol.presentation.model.PresentationEvent;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import eu.arrowhead.core.qos.monitor.protocol.IProtocol;
 
 /**
  *
@@ -23,12 +23,12 @@ import java.util.logging.Logger;
  */
 public class SLAVerification implements Runnable {
 
-    private final Monitor monitor;
+    private final IProtocol monitor;
     private final MonitorRule rule;
     private final MonitorLog log;
     private static final Logger LOG = Logger.getLogger(SLAVerification.class.getName());
 
-    public SLAVerification(Monitor monitor, MonitorRule rule, MonitorLog log) {
+    public SLAVerification(IProtocol monitor, MonitorRule rule, MonitorLog log) {
         this.monitor = monitor;
         this.rule = rule;
         this.log = log;

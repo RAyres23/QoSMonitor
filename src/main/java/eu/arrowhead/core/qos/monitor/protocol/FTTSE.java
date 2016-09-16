@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
-public class FTTSE implements Monitor {
+public class FTTSE implements IProtocol {
 
     public static final Logger LOG = Logger.getLogger(FTTSE.class.getName());
     private static final Map<String, PresentationData> DATA = new ConcurrentHashMap();
@@ -115,7 +115,7 @@ public class FTTSE implements Monitor {
     }
 
     @Override
-    public Event addServiceError(EventMessage error) {
+    public Event sendEvent(EventMessage error) {
 
         String stream = error.getParameters().get(Key.STREAMID.name);
         if (stream == null) {

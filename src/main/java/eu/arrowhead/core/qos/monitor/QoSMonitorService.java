@@ -12,7 +12,6 @@ import eu.arrowhead.core.qos.monitor.database.MonitorLog;
 import eu.arrowhead.core.qos.monitor.database.MonitorRule;
 import eu.arrowhead.core.qos.monitor.event.SLAVerification;
 import eu.arrowhead.core.qos.monitor.event.model.Event;
-import eu.arrowhead.core.qos.monitor.protocol.Monitor;
 import eu.arrowhead.core.qos.monitor.registry.ServiceRegister;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -24,6 +23,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import eu.arrowhead.core.qos.monitor.protocol.IProtocol;
 
 /**
  * This is the QoSMonitor Service class. It takes care of all the aspects of the
@@ -110,7 +110,7 @@ public class QoSMonitorService {
             throw new NoMonitorParametersException("No monitor parameters found!");
         }
 
-        Monitor monitor = null;
+        IProtocol monitor = null;
         try {
             monitor = getMonitorClass(message.getProtocol());
         } catch (ClassNotFoundException ex) {
@@ -157,7 +157,7 @@ public class QoSMonitorService {
             throw new MonitorRuleNotFoundException("No rule created for the given services");
         }
 
-        Monitor monitor = null;
+        IProtocol monitor = null;
         try {
             monitor = getMonitorClass(message.getProtocol());
         } catch (ClassNotFoundException ex) {
@@ -200,7 +200,7 @@ public class QoSMonitorService {
             throw new NoMonitorParametersException("No parameters found in service error message!");
         }
 
-        Monitor monitor = null;
+        IProtocol monitor = null;
         try {
             monitor = getMonitorClass(message.getProtocol());
         } catch (ClassNotFoundException ex) {
@@ -212,7 +212,7 @@ public class QoSMonitorService {
             throw new InvalidMonitorTypeException(excMessage);
         }
 
-        Event event = monitor.addServiceError(message);
+        Event event = monitor.sendEvent(message);
         
 //        EventProducer producer = new EventProducer(event);
 //        producer.publishEvent();
@@ -255,7 +255,7 @@ public class QoSMonitorService {
      * Returns an initialized instance of class, finding it by it's name.
      *
      * @param name name of the class to instantiate
-     * @return a Monitor implementation
+     * @return a IProtocol implementation
      * @throws ClassNotFoundException thrown when trying to initialize a class
      * that cannot be found. This may be due to the type in the message being
      * wrong or mistyped
@@ -277,20 +277,20 @@ public class QoSMonitorService {
      * Returns an initialized instance of class, finding it by it's name.
      *
      * @param name name of the class to instantiate
-     * @return a Monitor implementation
+     * @return a IProtocol implementation
      * @throws ClassNotFoundException thrown when trying to initialize a class
      * that cannot be found. This may be due to the type in the message being
      * wrong or mistyped
      * @throws InstantiationException
      * @throws IllegalAccessException
      */
-    private Monitor getMonitorClass(String name)
+    private IProtocol getMonitorClass(String name)
             throws ClassNotFoundException, InstantiationException, IllegalAccessException {
         Class<?> cl;
 
         cl = Class.forName(MONITOR_TYPE_PACKAGE + name);
 
-        Monitor monitor = (Monitor) cl.newInstance();
+        IProtocol monitor = (IProtocol) cl.newInstance();
 
         return monitor;
     }
