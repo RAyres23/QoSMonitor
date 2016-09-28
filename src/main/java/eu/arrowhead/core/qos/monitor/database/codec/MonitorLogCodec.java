@@ -50,7 +50,7 @@ public class MonitorLogCodec implements CollectibleCodec<MonitorLog> {
 
         writer.writeObjectId(MongoDBNames.DOCUMENT_ID, log.getId());
 
-        writer.writeString(MongoDBNames.MONITOR_TYPE, log.getType());
+        writer.writeString(MongoDBNames.MONITOR_TYPE, log.getProtocol());
 
         writer.writeDateTime(MongoDBNames.TIMESTAMP, log.getTimestamp());
 

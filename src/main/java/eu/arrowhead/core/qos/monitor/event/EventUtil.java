@@ -10,6 +10,7 @@ import eu.arrowhead.common.model.messages.EventMessage;
 import eu.arrowhead.core.qos.monitor.event.model.Event;
 import eu.arrowhead.core.qos.monitor.event.model.Metadata;
 import eu.arrowhead.core.qos.monitor.protocol.presentation.model.PresentationEvent;
+import java.util.List;
 
 /**
  *
@@ -32,6 +33,25 @@ public final class EventUtil {
         event.setType("event");
 
         event.setPayload(new Gson().toJson(error.getErrorMessage()));
+
+        return event;
+    }
+
+    /**
+     * Creates an Event instance with the information from the given parameter.
+     *
+     * @param parameters instance containing information to create an Event
+     * @return the Event instance
+     */
+    public static Event createEvent(List<SLAVerificationParameter> parameters) {
+        Event event = new Event();
+        Metadata meta = new Metadata();
+        meta.setSeverity(1);
+        event.setDescription(meta);
+        event.setFrom(EventProducer.getProducer());
+        event.setType("event");
+
+        event.setPayload(new Gson().toJson(parameters));
 
         return event;
     }

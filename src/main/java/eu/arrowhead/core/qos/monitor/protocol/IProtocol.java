@@ -11,6 +11,8 @@ import eu.arrowhead.core.qos.monitor.protocol.presentation.model.PresentationEve
 
 public interface IProtocol {
 
+    public final String NLOGS = "NLogs";
+
     /**
      * Filters a AddMonitorRule message into a MonitorRule.
      *
@@ -39,10 +41,10 @@ public interface IProtocol {
      * Creates an Event to the EventHandler and shows to the user if JavaFX
      * enabled.
      *
-     * @param event EventMessage message
+     * @param message EventMessage message
      * @return
      */
-    public Event sendEvent(EventMessage event);
+    public Event createEvent(EventMessage message);
 
     /**
      * Verifies if the SLA is being respected regarding the existing rule and

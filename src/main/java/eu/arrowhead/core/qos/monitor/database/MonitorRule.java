@@ -1,6 +1,8 @@
 package eu.arrowhead.core.qos.monitor.database;
 
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import org.bson.types.ObjectId;
 
 /**
@@ -11,7 +13,7 @@ import org.bson.types.ObjectId;
 public class MonitorRule {
 
     private final ObjectId id;
-    private String type;
+    private String protocol;
     private String providerSystemName;
     private String providerSystemGroup;
     private String consumerSystemName;
@@ -29,9 +31,10 @@ public class MonitorRule {
     /**
      * Creates a new instance with a generated id, using the given provider
      * system name, provider system group, consumer system name, consumer system
-     * group, monitor type, and monitor parameters and a time related clause.
+     * group, monitor protocol, and monitor parameters and a time related
+     * clause.
      *
-     * @param type the monitor type
+     * @param type the monitor protocol
      * @param providerSystemName the provider system name
      * @param providerSystemGroup the provider system group
      * @param consumerSystemName the consumer system name
@@ -51,11 +54,11 @@ public class MonitorRule {
 
     /**
      * Creates a new instance using the given id, provider system name, provider
-     * system group, consumer system name, consumer system group, monitor type,
-     * and monitor parameters and a time related clause.
+     * system group, consumer system name, consumer system group, monitor
+     * protocol, and monitor parameters and a time related clause.
      *
      * @param id the id
-     * @param type the monitor type
+     * @param type the monitor protocol
      * @param providerSystemName the provider system definition
      * @param providerSystemGroup the provider system group
      * @param consumerSystemName the consumer system definition
@@ -68,7 +71,7 @@ public class MonitorRule {
             String consumerSystemName, String consumerSystemGroup,
             Map<String, String> parameters, boolean softRealTime) {
         this.id = id;
-        this.type = type;
+        this.protocol = type;
         this.providerSystemName = providerSystemName;
         this.providerSystemGroup = providerSystemGroup;
         this.consumerSystemName = consumerSystemName;
@@ -87,21 +90,21 @@ public class MonitorRule {
     }
 
     /**
-     * Gets the monitor type.
+     * Gets the monitor protocol.
      *
-     * @return the monitor type
+     * @return the monitor protocol
      */
-    public String getType() {
-        return type;
+    public String getProtocol() {
+        return protocol;
     }
 
     /**
-     * Sets the monitor type.
+     * Sets the monitor protocol.
      *
-     * @param type the monitor type
+     * @param protocol the monitor protocol
      */
-    public void setType(String type) {
-        this.type = type;
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
     }
 
     /**
@@ -236,6 +239,42 @@ public class MonitorRule {
             return false;
         }
 
-        return this.consumerSystemGroup.equalsIgnoreCase(rule.consumerSystemGroup);
+        if (!this.consumerSystemGroup.equalsIgnoreCase(rule.consumerSystemGroup)) {
+            return false;
+        }
+
+        if (!this.protocol.equalsIgnoreCase(rule.protocol)) {
+            return false;
+        }
+
+        if (this.softRealTime != rule.softRealTime) {
+            return false;
+        }
+
+        Set<String> names = this.parameters.keySet();
+
+        for (String name : names) {
+            if (!rule.getParameters().containsKey(name)) {
+                return false;
+            }
+            if (!rule.getParameters().get(name).equalsIgnoreCase(rule.getParameters().get(name))) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 37 * hash + Objects.hashCode(this.protocol);
+        hash = 37 * hash + Objects.hashCode(this.providerSystemName);
+        hash = 37 * hash + Objects.hashCode(this.providerSystemGroup);
+        hash = 37 * hash + Objects.hashCode(this.consumerSystemName);
+        hash = 37 * hash + Objects.hashCode(this.consumerSystemGroup);
+        hash = 37 * hash + Objects.hashCode(this.parameters);
+        hash = 37 * hash + (this.softRealTime ? 1 : 0);
+        return hash;
     }
 }

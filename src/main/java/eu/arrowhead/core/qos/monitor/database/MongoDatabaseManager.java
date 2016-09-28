@@ -15,6 +15,7 @@ import com.mongodb.client.model.Sorts;
 import eu.arrowhead.common.model.ArrowheadSystem;
 import eu.arrowhead.core.qos.monitor.database.provider.MonitorLogCodecProvider;
 import eu.arrowhead.core.qos.monitor.database.provider.MonitorRuleCodecProvider;
+import eu.arrowhead.core.qos.monitor.protocol.IProtocol;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -530,15 +531,21 @@ public final class MongoDatabaseManager {
                 rule.getProviderSystemGroup(), rule.getProviderSystemName(),
                 rule.getConsumerSystemGroup(), rule.getConsumerSystemName());
 
-        MongoCursor<MonitorLog> sorted = logs.find().sort(Sorts.descending(MongoDBNames.TIMESTAMP)).iterator();
+        int NLogs = Integer.valueOf(rule.getParameters().get(IProtocol.NLOGS));
 
-        MonitorLog[] result = new MonitorLog[10];
+        if (logs.count() < NLogs) {
+            return null;
+        }
 
-        //FIXME rule.getSoftRealTimeNValues
-        int i = 0;
-        while (i != 10) {
+        MongoCursor<MonitorLog> sorted = logs.find().sort(Sorts.descending(MongoDBNames.TIMESTAMP)).limit(NLogs).iterator();
+
+        MonitorLog[] result = new MonitorLog[NLogs];
+
+        for (int i = 0; i < NLogs; i++) {
+            if (!sorted.hasNext()) {
+                break;
+            }
             result[i] = sorted.next();
-            i--;
         }
 
         return result;

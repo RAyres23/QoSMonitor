@@ -5,13 +5,14 @@ import eu.arrowhead.common.exception.MonitorRuleNotFoundException;
 import eu.arrowhead.common.exception.NoMonitorParametersException;
 import eu.arrowhead.common.model.messages.AddMonitorLog;
 import eu.arrowhead.common.model.messages.AddMonitorRule;
-import eu.arrowhead.common.model.messages.RemoveMonitorRule;
 import eu.arrowhead.common.model.messages.EventMessage;
+import eu.arrowhead.common.model.messages.RemoveMonitorRule;
 import eu.arrowhead.core.qos.monitor.database.MongoDatabaseManager;
 import eu.arrowhead.core.qos.monitor.database.MonitorLog;
 import eu.arrowhead.core.qos.monitor.database.MonitorRule;
 import eu.arrowhead.core.qos.monitor.event.SLAVerification;
 import eu.arrowhead.core.qos.monitor.event.model.Event;
+import eu.arrowhead.core.qos.monitor.protocol.IProtocol;
 import eu.arrowhead.core.qos.monitor.registry.ServiceRegister;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -23,7 +24,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import eu.arrowhead.core.qos.monitor.protocol.IProtocol;
 
 /**
  * This is the QoSMonitor Service class. It takes care of all the aspects of the
@@ -36,6 +36,7 @@ public class QoSMonitorService {
     private static final String MONITOR_TYPE_PACKAGE = "eu.arrowhead.core.qos.monitor.protocol.";
     private static final ExecutorService EXEC = Executors.newCachedThreadPool();
     private static final Logger LOG = Logger.getLogger(QoSMonitorService.class.getName());
+    public static boolean SHOW_GRAPHS = true;
 
     //FIXME only used in startService
     private static final List<String> REGISTERED = new ArrayList();
@@ -169,9 +170,9 @@ public class QoSMonitorService {
             throw new InvalidMonitorTypeException(excMessage);
         }
 
-        if (!(message.getProtocol().equals(rule.getType()))) {
+        if (!(message.getProtocol().equals(rule.getProtocol()))) {
             String excMessage = "Monitor type different from the existing rule for the given services."
-                    + "\nYour type: " + message.getProtocol() + "Existing rule type: " + rule.getType();
+                    + "\nYour type: " + message.getProtocol() + "Existing rule type: " + rule.getProtocol();
             LOG.log(Level.SEVERE, excMessage);
             throw new MonitorRuleNotFoundException(excMessage);
         }
@@ -212,11 +213,10 @@ public class QoSMonitorService {
             throw new InvalidMonitorTypeException(excMessage);
         }
 
-        Event event = monitor.sendEvent(message);
-        
+        Event event = monitor.createEvent(message);
+
 //        EventProducer producer = new EventProducer(event);
 //        producer.publishEvent();
-
     }
 
     /**

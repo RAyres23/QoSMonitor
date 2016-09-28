@@ -51,7 +51,7 @@ public class MonitorRuleCodec implements CollectibleCodec<MonitorRule> {
 
         writer.writeObjectId(MongoDBNames.DOCUMENT_ID, rule.getId());
 
-        writer.writeString(MongoDBNames.MONITOR_TYPE, rule.getType());
+        writer.writeString(MongoDBNames.MONITOR_TYPE, rule.getProtocol());
 
         writer.writeString(MongoDBNames.PROVIDER_SYSTEM_NAME, rule.getProviderSystemName());
         writer.writeString(MongoDBNames.PROVIDER_SYSTEM_GROUP, rule.getProviderSystemGroup());

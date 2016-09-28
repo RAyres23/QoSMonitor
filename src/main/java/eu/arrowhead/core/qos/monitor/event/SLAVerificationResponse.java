@@ -7,6 +7,7 @@ package eu.arrowhead.core.qos.monitor.event;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  *
@@ -43,5 +44,34 @@ public class SLAVerificationResponse {
     public boolean addParameter(SLAVerificationParameter parameter) {
         this.SLABroken = true;
         return this.parameters.add(parameter);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        SLAVerificationResponse response = (SLAVerificationResponse) obj;
+
+        if (this.SLABroken != response.SLABroken) {
+            return false;
+        }
+
+        List<SLAVerificationParameter> responseParameters = response.getParameters();
+
+        return parameters.stream().noneMatch((parameter) -> (!responseParameters.contains(parameter)));
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 67 * hash + (this.SLABroken ? 1 : 0);
+        hash = 67 * hash + Objects.hashCode(this.parameters);
+        return hash;
     }
 }

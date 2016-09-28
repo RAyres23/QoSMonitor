@@ -6,6 +6,8 @@
 package eu.arrowhead.core.qos.monitor.database;
 
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import org.bson.types.ObjectId;
 
 /**
@@ -16,7 +18,7 @@ import org.bson.types.ObjectId;
 public class MonitorLog {
 
     private final ObjectId id;
-    private String type;
+    private String protocol;
     private Map<String, String> parameters;
     private Long timestamp;
 
@@ -28,10 +30,10 @@ public class MonitorLog {
     }
 
     /**
-     * Creates a new instance with a generated id, using the given monitor type,
-     * monitor timestamp, and monitor parameters.
+     * Creates a new instance with a generated id, using the given monitor
+     * protocol, monitor timestamp, and monitor parameters.
      *
-     * @param type the monitor type
+     * @param type the monitor protocol
      * @param timestamp the monitor timestamp
      * @param parameters the monitor parameters
      */
@@ -40,17 +42,17 @@ public class MonitorLog {
     }
 
     /**
-     * Creates a new instance using the given id, monitor type, monitor
+     * Creates a new instance using the given id, monitor protocol, monitor
      * timestamp, and monitor parameters.
      *
      * @param id the id
-     * @param type the monitor type
+     * @param type the monitor protocol
      * @param timestamp the monitor timestamp
      * @param parameters the monitor parameters
      */
     public MonitorLog(final ObjectId id, String type, Long timestamp, Map<String, String> parameters) {
         this.id = id;
-        this.type = type;
+        this.protocol = type;
         this.timestamp = timestamp;
         this.parameters = parameters;
     }
@@ -65,21 +67,21 @@ public class MonitorLog {
     }
 
     /**
-     * Gets the monitor type.
+     * Gets the monitor protocol.
      *
-     * @return the monitor type
+     * @return the monitor protocol
      */
-    public String getType() {
-        return type;
+    public String getProtocol() {
+        return protocol;
     }
 
     /**
-     * Sets the monitor type.
+     * Sets the monitor protocol.
      *
-     * @param type the monitor type
+     * @param protocol the monitor protocol
      */
-    public void setType(String type) {
-        this.type = type;
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
     }
 
     /**
@@ -116,6 +118,49 @@ public class MonitorLog {
      */
     public void setParameters(Map<String, String> parameters) {
         this.parameters = parameters;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        MonitorLog log = (MonitorLog) obj;
+
+        if (!this.protocol.equalsIgnoreCase(log.protocol)) {
+            return false;
+        }
+
+        if (!Objects.equals(this.timestamp, log.timestamp)) {
+            return false;
+        }
+
+        Set<String> names = this.parameters.keySet();
+
+        for (String name : names) {
+            if (!log.getParameters().containsKey(name)) {
+                return false;
+            }
+            if (!log.getParameters().get(name).equalsIgnoreCase(log.getParameters().get(name))) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 83 * hash + Objects.hashCode(this.protocol);
+        hash = 83 * hash + Objects.hashCode(this.parameters);
+        hash = 83 * hash + Objects.hashCode(this.timestamp);
+        return hash;
     }
 
 }

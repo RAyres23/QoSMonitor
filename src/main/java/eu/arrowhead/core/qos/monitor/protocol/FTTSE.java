@@ -2,10 +2,12 @@ package eu.arrowhead.core.qos.monitor.protocol;
 
 import eu.arrowhead.common.exception.InvalidParameterException;
 import eu.arrowhead.common.exception.MissingParameterException;
+import eu.arrowhead.common.exception.NoMonitorParametersException;
 import eu.arrowhead.common.model.ArrowheadSystem;
-import eu.arrowhead.common.model.messages.AddMonitorRule;
 import eu.arrowhead.common.model.messages.AddMonitorLog;
+import eu.arrowhead.common.model.messages.AddMonitorRule;
 import eu.arrowhead.common.model.messages.EventMessage;
+import eu.arrowhead.core.qos.monitor.QoSMonitorService;
 import eu.arrowhead.core.qos.monitor.database.FilterParameter;
 import eu.arrowhead.core.qos.monitor.database.MongoDatabaseManager;
 import eu.arrowhead.core.qos.monitor.database.MonitorLog;
@@ -66,22 +68,42 @@ public class FTTSE implements IProtocol {
 
         Map<String, String> parameters = filterParameters(message.getParameters());
 
-        String name = Key.STREAMID.name;
-        String streamID = message.getParameters().get(name);
+        if (parameters.isEmpty()) {
+            throw new NoMonitorParametersException("No monitor parameters were found!");
+        }
+
+        String streamIDName = Key.STREAMID.name;
+        String streamID = message.getParameters().get(streamIDName);
 
         if (streamID == null) {
-            throw new MissingParameterException("Missing " + name + " in FTTSE rule!");
+            throw new MissingParameterException("Missing " + streamIDName + " in FTTSE rule!");
         }
 
         try {
-            Double.valueOf(message.getParameters().get(name));
+            Integer.valueOf(message.getParameters().get(streamIDName));
+            parameters.put(streamIDName, streamID);
         } catch (NumberFormatException ex) {
             throw new InvalidParameterException("Value of parameter "
-                    + name + " is not parsable. Please make sure "
+                    + streamIDName + " is not parsable. Please make sure "
                     + "that no invalid characters are present");
         }
 
-        parameters.put(name, streamID);
+        if (message.isSoftRealTime()) {
+            String nLogs = message.getParameters().get(NLOGS);
+
+            if (nLogs == null) {
+                throw new MissingParameterException("Missing " + NLOGS + " in FTTSE rule!");
+            }
+
+            try {
+                Integer.valueOf(message.getParameters().get(NLOGS));
+                parameters.put(NLOGS, nLogs);
+            } catch (NumberFormatException ex) {
+                throw new InvalidParameterException("Value of parameter "
+                        + NLOGS + " is not parsable. Please make sure "
+                        + "that no invalid characters are present");
+            }
+        }
 
         return new MonitorRule(message.getProtocol(),
                 provider.getSystemName(), provider.getSystemGroup(),
@@ -91,19 +113,31 @@ public class FTTSE implements IProtocol {
 
     @Override
     public MonitorLog filterLogMessage(AddMonitorLog message) {
-        MonitorLog log = new MonitorLog(message.getProtocol(), message.getTimestamp(), filterParameters(message.getParameters()));
+        MonitorLog log = new MonitorLog();
+        log.setProtocol(message.getProtocol());
+        log.setTimestamp(message.getTimestamp());
 
-        String queueKey = (message.getProvider().getSystemGroup() + message.getProvider().getSystemName() + message.getConsumer().getSystemGroup() + message.getConsumer().getSystemName());
-        if (!(DATA.containsKey(queueKey))) {
-            PresentationData data = new PresentationData();
-            DATA.put(queueKey, data);
-            data.getLogs().add(log);
-            Runnable r = () -> {
-                new FTTSE_Presentation(queueKey, data).build();
-            };
-            new Thread(r).start();
-        } else {
-            DATA.get(queueKey).getLogs().add(log);
+        Map<String, String> parameters = filterParameters(message.getParameters());
+
+        if (parameters.isEmpty()) {
+            throw new NoMonitorParametersException("No monitor parameters were found!");
+        }
+
+        log.setParameters(parameters);
+
+        if (QoSMonitorService.SHOW_GRAPHS) {
+            String queueKey = (message.getProvider().getSystemGroup() + message.getProvider().getSystemName() + message.getConsumer().getSystemGroup() + message.getConsumer().getSystemName());
+            if (!(DATA.containsKey(queueKey))) {
+                PresentationData data = new PresentationData();
+                DATA.put(queueKey, data);
+                data.getLogs().add(log);
+                Runnable r = () -> {
+                    new FTTSE_Presentation(queueKey, data).build();
+                };
+                new Thread(r).start();
+            } else {
+                DATA.get(queueKey).getLogs().add(log);
+            }
         }
 
         return log;
@@ -115,29 +149,31 @@ public class FTTSE implements IProtocol {
     }
 
     @Override
-    public Event sendEvent(EventMessage error) {
+    public Event createEvent(EventMessage message) {
 
-        String stream = error.getParameters().get(Key.STREAMID.name);
+        String stream = message.getParameters().get(Key.STREAMID.name);
         if (stream == null) {
-            throw new MissingParameterException("Missing " + stream + " in FTTSE service error!");
+            throw new MissingParameterException("Missing " + stream + " in FTTSE event!");
         }
 
         List<MonitorRule> rules = MongoDatabaseManager.getInstance().findRuleByParameters(new FilterParameter(Key.STREAMID.name, stream));
 
-        rules.stream().map((rule) -> (rule.getProviderSystemGroup() + rule.getProviderSystemName() + rule.getConsumerSystemGroup() + rule.getConsumerSystemName())).forEach((queueKey) -> {
-            if (!(DATA.containsKey(queueKey))) {
-                PresentationData data = new PresentationData();
-                DATA.put(queueKey, data);
-                data.getEvents().add(EventUtil.createPresentationEvent(error));
-                Runnable r = () -> {
-                    new FTTSE_Presentation(queueKey, data).build();
-                };
-                new Thread(r).start();
-            } else {
-                DATA.get(queueKey).getEvents().add(EventUtil.createPresentationEvent(error));
-            }
-        });
-        return EventUtil.createEvent(error);
+        if (QoSMonitorService.SHOW_GRAPHS) {
+            rules.stream().map((rule) -> (rule.getProviderSystemGroup() + rule.getProviderSystemName() + rule.getConsumerSystemGroup() + rule.getConsumerSystemName())).forEach((queueKey) -> {
+                if (!(DATA.containsKey(queueKey))) {
+                    PresentationData data = new PresentationData();
+                    DATA.put(queueKey, data);
+                    data.getEvents().add(EventUtil.createPresentationEvent(message));
+                    Runnable r = () -> {
+                        new FTTSE_Presentation(queueKey, data).build();
+                    };
+                    new Thread(r).start();
+                } else {
+                    DATA.get(queueKey).getEvents().add(EventUtil.createPresentationEvent(message));
+                }
+            });
+        }
+        return EventUtil.createEvent(message);
     }
 
     @Override
@@ -149,12 +185,10 @@ public class FTTSE implements IProtocol {
         }
 
         if (nLogs > 1) {
-            //FIXME softRealTime
             return doSoftRealTime(rule.getParameters(), Arrays.asList(logs));
         }
 
-        //FIXME Hard-real Time
-        return doHardRealTime(rule.getParameters(), logs[0].getParameters());
+        return doRealTime(rule.getParameters(), logs[0].getParameters());
     }
 
     private Map<String, String> filterParameters(Map<String, String> params) {
@@ -179,7 +213,7 @@ public class FTTSE implements IProtocol {
         return parameters;
     }
 
-    private SLAVerificationResponse doHardRealTime(Map<String, String> rule, Map<String, String> log) {
+    private SLAVerificationResponse doRealTime(Map<String, String> rule, Map<String, String> log) {
         SLAVerificationResponse response = new SLAVerificationResponse();
 
         System.out.println("On the SLAVerificationResponse " + log);
@@ -223,7 +257,6 @@ public class FTTSE implements IProtocol {
         SLAVerificationResponse response = new SLAVerificationResponse();
 
         Double bandwidthMean = 0.0;
-        Double responseTimeMean = 0.0;
         Double delayMean = 0.0;
         Double nLogs = Double.valueOf(logs.size());
 
@@ -234,7 +267,6 @@ public class FTTSE implements IProtocol {
         }
 
         bandwidthMean /= nLogs;
-        responseTimeMean /= nLogs;
         delayMean /= nLogs;
 
         Monitor[] keys = Monitor.values();
@@ -249,7 +281,7 @@ public class FTTSE implements IProtocol {
                     break;
                 case DELAY:
                     if (delayMean > requestedValue) {
-                        response.addParameter(new SLAVerificationParameter(key.name, requestedValue, responseTimeMean));
+                        response.addParameter(new SLAVerificationParameter(key.name, requestedValue, delayMean));
                     }
                     break;
                 default:

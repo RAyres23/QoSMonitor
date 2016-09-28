@@ -58,9 +58,9 @@ public class ProducerRegistry {
 
     private Producer initProducer() {
         producer = new Producer();
-        producer.setUid(getProps().getProperty("producer.uid"));
-        producer.setType(getProps().getProperty("producer.type"));
-        producer.setName(getProps().getProperty("producer.name"));
+        producer.setUid("qosmonitorsystem");
+        producer.setType("producer");
+        producer.setName("qosmonitor");
         return producer;
     }
 
@@ -76,7 +76,7 @@ public class ProducerRegistry {
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.json(producer));
 
-        EventProducer.setProducer(producer.getUid()); 
+        EventProducer.setProducer(producer.getUid());
 
         int statusCode = response.getStatus();
 
