@@ -1,9 +1,9 @@
 package eu.arrowhead.core.qos.monitor;
 
-import eu.arrowhead.common.model.messages.AddMonitorRule;
 import eu.arrowhead.common.model.messages.AddMonitorLog;
-import eu.arrowhead.common.model.messages.RemoveMonitorRule;
+import eu.arrowhead.common.model.messages.AddMonitorRule;
 import eu.arrowhead.common.model.messages.EventMessage;
+import eu.arrowhead.common.model.messages.RemoveMonitorRule;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ws.rs.Consumes;
@@ -61,10 +61,10 @@ public class QoSMonitorResource {
 
     /**
      * Method handling HTTP POST request in /qosrule path. The returned object
- will be sent to the client as "application/json" media type.
-
- Used to add new monitor rules to the QoSMonitorService. This rule will be
- used against AddMonitorLog for SLA verification.
+     * will be sent to the client as "application/json" media type.
+     *
+     * Used to add new monitor rules to the QoSMonitorService. This rule will be
+     * used against AddMonitorLog for SLA verification.
      *
      * @param message message with all the information regarding the monitor
      * rule being added
@@ -131,7 +131,7 @@ public class QoSMonitorResource {
     }
 
     @POST
-    @Path("/Event")
+    @Path("/QoSEvent")
     public Response sendEvent(EventMessage error) {
         try {
             monitor.sendEvent(error);
