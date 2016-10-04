@@ -41,6 +41,7 @@ public class Register {
         LOG.log(Level.INFO, "Entered the registerAll method");
         //Register QoSMonitor service in service registry
         List<String> registries = getServiceRegistry();
+        System.out.println("REGISTRIES " + registries.size());
 
         registries.stream().forEach((String registry) -> {
             try {
@@ -63,6 +64,7 @@ public class Register {
                 LOG.log(Level.SEVERE, ex.getMessage());
             }
         });
+        System.out.println("REGISTERED: " + REGISTERED.size());
     }
 
     /**
@@ -119,7 +121,7 @@ public class Register {
             LOG.log(Level.SEVERE, ex.getMessage());
             throw new RuntimeException(ex.getMessage());
         }
-        registries = props.getProperty("registry.option").split(",");
+        registries = props.getProperty("registry.option").trim().split(",");
         if (registries.length == 0) {
             String exMsg = "No ServiceRegistry values found in registry.option of serviceregistry.properties file.";
             LOG.log(Level.SEVERE, exMsg);

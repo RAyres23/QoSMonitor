@@ -13,6 +13,7 @@ import eu.arrowhead.core.qos.monitor.database.MonitorRule;
 import eu.arrowhead.core.qos.monitor.event.SLAVerification;
 import eu.arrowhead.core.qos.monitor.event.model.Event;
 import eu.arrowhead.core.qos.monitor.protocol.IProtocol;
+import eu.arrowhead.core.qos.monitor.registry.Register;
 import eu.arrowhead.core.qos.monitor.registry.ServiceRegister;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -63,31 +64,9 @@ public class QoSMonitorService {
 //    }
     public void startService() {
         //Register QoSMonitor service in service registry
-        List<String> registries = getServiceRegistry();
-
-        registries.stream().forEach((registry) -> {
-            try {
-                LOG.log(Level.INFO, "Getting " + MONITOR_REGISTRY_PACKAGE + "{0} class.", registry);
-                ServiceRegister register = getRegistryClass(registry);
-                LOG.log(Level.INFO, "Registering in {0} ServiceRegistry", register.getClass().getName());
-                if (register.registerQoSMonitorService()) {
-                    REGISTERED.add(registry);
-                    LOG.log(Level.INFO, "Registry in {0} successful!", register.getClass().getName());
-                } else {
-                    LOG.log(Level.WARNING, "Registry in {0} unsuccessful!", register.getClass().getName());
-                }
-            } catch (ClassNotFoundException ex) {
-                String excMessage = "Not registered in registry " + registry + ". "
-                        + "Registry class " + registry + " not found. Make "
-                        + "sure you have the right registry class for your "
-                        + "situation and that it's available in this version "
-                        + "and/or not misspelled.";
-                LOG.log(Level.SEVERE, excMessage);
-//                throw new RuntimeException(excMessage);
-            } catch (InstantiationException | IllegalAccessException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage());
-            }
-        });
+        //Service Registry
+        Register register = new Register();
+        register.registerAll();
 
         // [PT] Starting MongoDB, loading EventProducer configurations and registering in EventHandler
 //        EventProducerConfig.loadConfigurations();
